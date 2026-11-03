@@ -4,12 +4,13 @@
 //! breaking (which spills the items) work as they do for any container.
 use horizon_client::mod_api::{
     BlockEntityContainerEvent, BlockEntityEvent, BlockEntityTickEvent, BlockEntityTicksEvent,
-    BlockEntityUpdateTagEvent, Compound, Flow, Hooks, Host, LootDropsEvent, MenuSlotRulesEvent,
+    BlockEntityUpdateTagEvent, Compound, DestroyBlockEvent, Flow, Hooks, Host, LootDropsEvent, MenuSlotRulesEvent,
     ModContainer, NativeScreen, PlaceBlockEvent, ScreenDrawEvent, ScreenEvent, TooltipEvent,
     UseItemOnEvent,
 };
 
 mod barrel;
+mod keep;
 
 pub fn hooks() -> Box<dyn Hooks> {
     Box::new(HorizonChests)
@@ -182,15 +183,30 @@ impl Hooks for HorizonChests {
         barrel::use_item_on(host, event)
     }
 
+    /// A player breaking a chest: its items go with the chest (keep.rs).
+    fn destroy_block(&self, host: &mut dyn Host, event: &mut DestroyBlockEvent) -> Flow {
+        if let Some(t) = tier(&host.block(event.pos)) {
+            keep::destroy_block(host, event.pos, t.slots());
+        }
+        Flow::Continue
+    }
+
     fn loot_drops(&self, _host: &mut dyn Host, event: &mut LootDropsEvent<'_>) {
         barrel::loot_drops(event);
+        keep::loot_drops(event, |item| tier(item).is_some());
     }
 
     fn place_block(&self, host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) {
         barrel::place_block(host, event);
+        if tier(&event.stack.item).is_some() {
+            keep::place_block(host, event);
+        }
     }
 
     fn tooltip(&self, _host: &dyn Host, event: &mut TooltipEvent<'_>) {
         barrel::tooltip(event);
+        if tier(&event.stack.item).is_some() {
+            keep::tooltip(event);
+        }
     }
 }
