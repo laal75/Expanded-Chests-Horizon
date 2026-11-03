@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "horizon_chests:item/storage_upgrade"
+  }
+}

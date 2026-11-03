@@ -1,0 +1,9 @@
+{
+  "template": "minecraft:furnace",
+  "properties": {
+    "hardness": 2.5,
+    "explosion_resistance": 2.5,
+    "requires_tool": false,
+    "sounds": "minecraft:barrel"
+  }
+}

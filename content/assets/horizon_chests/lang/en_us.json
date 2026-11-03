@@ -7,5 +7,8 @@
   "container.horizon_chests.diamond_chest": "Diamond Chest",
   "block.horizon_chests.netherite_chest": "Netherite Chest",
   "container.horizon_chests.netherite_chest": "Netherite Chest",
+  "block.horizon_chests.storage_barrel": "Storage Barrel",
+  "container.horizon_chests.storage_barrel": "Storage Barrel",
+  "item.horizon_chests.storage_upgrade": "Storage Upgrade",
   "itemGroup.horizon_chests.chests": "Horizon Chests"
 }

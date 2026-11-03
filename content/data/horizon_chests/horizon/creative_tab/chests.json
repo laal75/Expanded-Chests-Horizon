@@ -5,6 +5,8 @@
     "horizon_chests:iron_chest",
     "horizon_chests:gold_chest",
     "horizon_chests:diamond_chest",
-    "horizon_chests:netherite_chest"
+    "horizon_chests:netherite_chest",
+    "horizon_chests:storage_barrel",
+    "horizon_chests:storage_upgrade"
   ]
 }

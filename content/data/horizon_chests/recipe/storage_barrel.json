@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PIP",
+    "IBI",
+    "PIP"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "I": "minecraft:iron_ingot",
+    "B": "minecraft:barrel"
+  },
+  "result": {
+    "id": "horizon_chests:storage_barrel"
+  }
+}

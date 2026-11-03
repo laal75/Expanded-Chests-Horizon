@@ -165,17 +165,141 @@ write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"{ID}:{n}"
 # item tubes connect to what is in it.
 write("data/c/tags/block/chests.json", {"values": [f"{ID}:{n}" for n in TIERS]})
 
+# ---- the storage barrel ---------------------------------------------------------------------
+# One item, kept as a count: 32 stacks, doubled by each Storage Upgrade up to 1024 with five.
+# native/api/src/barrel.rs has the slots: 0 takes in, 1 gives out, 2 holds the upgrades.
+BARREL = "storage_barrel"
+OAK = (164, 124, 74)
+STEEL = (150, 154, 160)
+
+
+def barrel_side(seed):
+    rng = random.Random(seed)
+    px = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            if y in (2, 13):
+                c = shade(STEEL, 0.9 + rng.random() * 0.1)
+            elif x in (0, 15) or y in (0, 15):
+                c = shade(OAK, 0.6)
+            else:
+                # Staves run up and down.
+                c = shade(OAK, 0.6 if x % 5 == 0 else 0.88 + rng.random() * 0.14)
+            row.append(c)
+        px.append(row)
+    return px
+
+
+def barrel_front(seed):
+    rng = random.Random(seed)
+    px = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            if x in (0, 15) or y in (0, 15):
+                c = shade(STEEL, 0.75)
+            elif x in (1, 14) or y in (1, 14):
+                c = shade(OAK, 0.6)
+            elif 3 <= x <= 12 and 3 <= y <= 12:
+                # The label frame the item sits behind.
+                edge = x in (3, 12) or y in (3, 12)
+                c = shade(STEEL, 1.1) if edge else shade((48, 36, 26), 1.0 + rng.random() * 0.1)
+            else:
+                c = shade(OAK, 0.85 + rng.random() * 0.12)
+            row.append(c)
+        px.append(row)
+    return px
+
+
+def barrel_top(seed):
+    rng = random.Random(seed)
+    px = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            d = max(abs(x - 7.5), abs(y - 7.5))
+            if d > 6.5:
+                c = shade(STEEL, 0.8)
+            else:
+                c = shade(OAK, 0.6 if y % 4 == 0 else 0.86 + rng.random() * 0.14)
+            row.append(c)
+        px.append(row)
+    return px
+
+
+
+def upgrade_icon():
+    px = [[(0, 0, 0, 0)] * 16 for _ in range(16)]
+    for y in range(2, 14):
+        for x in range(2, 14):
+            edge = x in (2, 13) or y in (2, 13)
+            px[y][x] = shade(STEEL, 0.6) if edge else shade(OAK, 0.95)
+    # An arrow pointing up: more room.
+    green = (90, 200, 90, 255)
+    for y in range(7, 12):
+        px[y][7] = px[y][8] = green
+    for i in range(3):
+        for x in range(6 - i, 10 + i):
+            px[4 + i][x] = green
+    return px
+
+
+png(f"assets/{ID}/textures/block/{BARREL}_front.png", barrel_front(50))
+png(f"assets/{ID}/textures/block/{BARREL}_side.png", barrel_side(51))
+png(f"assets/{ID}/textures/block/{BARREL}_top.png", barrel_top(52))
+png(f"assets/{ID}/textures/item/storage_upgrade.png", upgrade_icon())
+
+write(f"data/{ID}/horizon/block/{BARREL}.json", {
+    "template": "minecraft:furnace",
+    "properties": {"hardness": 2.5, "explosion_resistance": 2.5, "requires_tool": False,
+                   "sounds": "minecraft:barrel"},
+})
+write(f"data/{ID}/horizon/menu/{BARREL}.json", {"slots": 3, "data_slots": 4, "results": [1]})
+write(f"assets/{ID}/models/block/{BARREL}.json", {
+    "parent": "minecraft:block/orientable",
+    "textures": {"front": f"{ID}:block/{BARREL}_front", "side": f"{ID}:block/{BARREL}_side",
+                 "top": f"{ID}:block/{BARREL}_top"},
+})
+variants = {}
+for facing, rot in FACINGS.items():
+    for lit in ("false", "true"):
+        v = {"model": f"{ID}:block/{BARREL}"}
+        if rot:
+            v["y"] = rot
+        variants[f"facing={facing},lit={lit}"] = v
+write(f"assets/{ID}/blockstates/{BARREL}.json", {"variants": variants})
+write(f"assets/{ID}/items/{BARREL}.json", {"model": {"type": "minecraft:model", "model": f"{ID}:block/{BARREL}"}})
+# The code puts what the barrel held on the dropped barrel.
+write(f"data/{ID}/loot_table/blocks/{BARREL}.json", {
+    "type": "minecraft:block",
+    "pools": [{"entries": [{"type": "minecraft:item", "name": f"{ID}:{BARREL}"}], "rolls": 1}],
+    "random_sequence": f"{ID}:blocks/{BARREL}",
+})
+lang[f"block.{ID}.{BARREL}"] = "Storage Barrel"
+lang[f"container.{ID}.{BARREL}"] = "Storage Barrel"
+write("data/minecraft/tags/block/mineable/axe.json", {"values": [f"{ID}:{BARREL}"]})
+write("data/c/tags/block/barrels.json", {"values": [f"{ID}:{BARREL}"]})
+
+write(f"data/{ID}/horizon/item/storage_upgrade.json", {"template": "minecraft:sugar"})
+write(f"assets/{ID}/models/item/storage_upgrade.json",
+      {"parent": "minecraft:item/generated", "textures": {"layer0": f"{ID}:item/storage_upgrade"}})
+write(f"assets/{ID}/items/storage_upgrade.json",
+      {"model": {"type": "minecraft:model", "model": f"{ID}:item/storage_upgrade"}})
+lang[f"item.{ID}.storage_upgrade"] = "Storage Upgrade"
+
+
 # ---- crafting and the recipe book -----------------------------------------------------------
-for name, (_, _, _, _, _, pattern, key) in TIERS.items():
+def recipe(name, pattern, key, unlock):
     write(f"data/{ID}/recipe/{name}.json", {
         "type": "minecraft:crafting_shaped", "category": "misc", "pattern": pattern, "key": key,
         "result": {"id": f"{ID}:{name}"},
     })
-    # Unlocks once the player holds the chest it is made around.
+    # Unlocks once the player holds `unlock`.
     criteria = {"has_the_recipe": {"trigger": "minecraft:recipe_unlocked",
                                    "conditions": {"recipe": f"{ID}:{name}"}},
-                "has_chest": {"trigger": "minecraft:inventory_changed",
-                              "conditions": {"items": [{"items": key["C"]}]}}}
+                "has_item": {"trigger": "minecraft:inventory_changed",
+                             "conditions": {"items": [{"items": unlock}]}}}
     write(f"data/{ID}/advancement/recipes/misc/{name}.json", {
         "parent": "minecraft:recipes/root",
         "criteria": criteria,
@@ -183,10 +307,18 @@ for name, (_, _, _, _, _, pattern, key) in TIERS.items():
         "rewards": {"recipes": [f"{ID}:{name}"]},
     })
 
+
+for name, (_, _, _, _, _, pattern, key) in TIERS.items():
+    recipe(name, pattern, key, key["C"])
+recipe(BARREL, ["PIP", "IBI", "PIP"],
+       {"P": "#minecraft:planks", "I": "minecraft:iron_ingot", "B": "minecraft:barrel"}, "minecraft:barrel")
+recipe("storage_upgrade", ["IGI", "GCG", "IGI"],
+       {"I": "minecraft:iron_ingot", "G": "minecraft:gold_ingot", "C": "minecraft:chest"}, f"{ID}:{BARREL}")
+
 lang[f"itemGroup.{ID}.chests"] = "Horizon Chests"
 write(f"assets/{ID}/lang/en_us.json", lang)
 write(f"data/{ID}/horizon/creative_tab/chests.json", {
     "title": "Horizon Chests",
     "icon": f"{ID}:diamond_chest",
-    "items": [f"{ID}:{n}" for n in TIERS],
+    "items": [f"{ID}:{n}" for n in TIERS] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"],
 })

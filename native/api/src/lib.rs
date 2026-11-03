@@ -1,10 +1,15 @@
-//! Horizon Chests: four tiers of chest bigger than vanilla's. The blocks, menus and recipes come
-//! from the content mod; this crate gives them block entities, slots and screens. Hoppers,
-//! shift-clicks and breaking (which spills the items) work as they do for any container.
+//! Horizon Chests: four tiers of chest bigger than vanilla's, and a storage barrel that holds
+//! up to 1024 stacks of one item (barrel.rs). The blocks, menus and recipes come from the content
+//! mod; this crate gives them block entities, slots and screens. Hoppers, shift-clicks and
+//! breaking (which spills the items) work as they do for any container.
 use horizon_client::mod_api::{
-    BlockEntityContainerEvent, BlockEntityEvent, BlockEntityUpdateTagEvent, Compound, Hooks, Host,
-    ModContainer, NativeScreen, ScreenDrawEvent, ScreenEvent,
+    BlockEntityContainerEvent, BlockEntityEvent, BlockEntityTickEvent, BlockEntityTicksEvent,
+    BlockEntityUpdateTagEvent, Compound, Flow, Hooks, Host, LootDropsEvent, MenuSlotRulesEvent,
+    ModContainer, NativeScreen, PlaceBlockEvent, ScreenDrawEvent, ScreenEvent, TooltipEvent,
+    UseItemOnEvent,
 };
+
+mod barrel;
 
 pub fn hooks() -> Box<dyn Hooks> {
     Box::new(HorizonChests)
@@ -68,7 +73,21 @@ impl Hooks for HorizonChests {
         _host: &mut dyn Host,
         event: &mut BlockEntityEvent<'_>,
     ) -> Option<(String, Compound)> {
-        tier(event.block).map(|_| (event.block.to_owned(), Compound::new()))
+        (tier(event.block).is_some() || event.block == barrel::BARREL)
+            .then(|| (event.block.to_owned(), Compound::new()))
+    }
+
+    fn block_entity_ticks(&self, _host: &dyn Host, event: &mut BlockEntityTicksEvent<'_>) {
+        // Chests sit still; the barrel moves its count in and out of its slots.
+        if event.block == barrel::BARREL {
+            event.ticks = true;
+        }
+    }
+
+    fn block_entity_tick(&self, host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
+        if event.entity.id == barrel::BARREL {
+            barrel::tick(host, event);
+        }
     }
 
     fn block_entity_container(
@@ -76,6 +95,9 @@ impl Hooks for HorizonChests {
         _host: &dyn Host,
         event: &mut BlockEntityContainerEvent<'_>,
     ) -> Option<ModContainer> {
+        if event.block == barrel::BARREL {
+            return Some(barrel::container());
+        }
         // Every side reaches every slot, both ways, as a chest's.
         let t = tier(event.block)?;
         let all: Vec<usize> = (0..t.slots()).collect();
@@ -90,10 +112,21 @@ impl Hooks for HorizonChests {
 
     fn block_entity_update_tag(&self, event: &mut BlockEntityUpdateTagEvent<'_>) -> Option<Compound> {
         // Clients only draw the block, so they need nothing of the entity.
-        tier(&event.entity.id).map(|_| Compound::new())
+        (tier(&event.entity.id).is_some() || event.entity.id == barrel::BARREL).then(Compound::new)
     }
 
     fn screen(&self, _host: &dyn Host, event: &mut ScreenEvent<'_>) -> Option<NativeScreen> {
+        if event.block == barrel::BARREL {
+            return Some(NativeScreen {
+                width: 176.0,
+                height: 166.0,
+                slots: barrel::screen_slots(),
+                inventory_y: 84.0,
+                inventory_x: 8.0,
+                own_labels: true,
+                ..NativeScreen::default()
+            });
+        }
         let t = tier(event.block)?;
         let (gx, inventory_y) = (t.grid_x(), t.inventory_y());
         let slots = (0..t.slots())
@@ -113,6 +146,10 @@ impl Hooks for HorizonChests {
     }
 
     fn screen_draw(&self, host: &dyn Host, event: &mut ScreenDrawEvent<'_>) {
+        if event.block == barrel::BARREL {
+            barrel::draw(host, event);
+            return;
+        }
         let Some(t) = tier(event.block) else {
             return;
         };
@@ -125,5 +162,27 @@ impl Hooks for HorizonChests {
             0x40_4040,
             false,
         );
+    }
+
+    fn menu_slot_rules(&self, event: &mut MenuSlotRulesEvent<'_>) {
+        if event.menu == barrel::BARREL {
+            barrel::slot_rule(event);
+        }
+    }
+
+    fn use_item_on(&self, host: &mut dyn Host, event: &mut UseItemOnEvent<'_>) -> Flow {
+        barrel::use_item_on(host, event)
+    }
+
+    fn loot_drops(&self, _host: &mut dyn Host, event: &mut LootDropsEvent<'_>) {
+        barrel::loot_drops(event);
+    }
+
+    fn place_block(&self, host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) {
+        barrel::place_block(host, event);
+    }
+
+    fn tooltip(&self, _host: &dyn Host, event: &mut TooltipEvent<'_>) {
+        barrel::tooltip(event);
     }
 }

@@ -7,7 +7,7 @@
         "recipe": "horizon_chests:netherite_chest"
       }
     },
-    "has_chest": {
+    "has_item": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_chest"
+      "has_item"
     ]
   ],
   "rewards": {
