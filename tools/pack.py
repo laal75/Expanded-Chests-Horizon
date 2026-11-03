@@ -1,0 +1,72 @@
+"""Packs the mod into argv[1] (default dist/): horizon_chests.hmod (the content) and
+horizon_chests_core.hnmod (the native code), as docs/api/mod-files.md describes them."""
+import json
+import os
+import re
+import sys
+import zipfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MOD = os.path.dirname(HERE)
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(MOD, "dist")
+
+GAME = "26.3"
+# The horizon-mixins commit the launcher built this Horizon with (native-mods.json's horizon_mixins).
+MIXINS = "ddd9700b21997c95d95ac6ee5ecafe3830cf622a"
+
+
+def files(root):
+    for base, dirs, names in os.walk(root):
+        dirs[:] = sorted(d for d in dirs if d not in ("target", "__pycache__"))
+        for name in sorted(names):
+            path = os.path.join(base, name)
+            yield path, os.path.relpath(path, root).replace(os.sep, "/")
+
+
+def toml_value(text, section, key):
+    block = re.search(rf"^\[{section}\]\n(.*?)(?=^\[|\Z)", text, re.M | re.S).group(1)
+    return re.search(rf'^{key}\s*=\s*"([^"]+)"', block, re.M).group(1)
+
+
+def native_entry(rel):
+    """What mod-files.md lets a bundle hold under mixins/<id>/."""
+    name = rel.rsplit("/", 1)[-1]
+    top = rel.count("/") <= 1
+    return (rel.endswith((".rs", ".toml"))
+            or rel.startswith("data/") or re.match(r"[^/]+/data/", rel)
+            or (top and re.match(r"(README|LICEN[CS]E|COPYING|NOTICE)|\.gitignore$", name)))
+
+
+os.makedirs(OUT, exist_ok=True)
+
+# The content mod.
+content = os.path.join(MOD, "content")
+with open(os.path.join(content, "horizon-mod.toml"), encoding="utf-8") as f:
+    content_id = re.search(r'^id\s*=\s*"([^"]+)"', f.read(), re.M).group(1)
+hmod = os.path.join(OUT, f"{content_id}.hmod")
+with zipfile.ZipFile(hmod, "w", zipfile.ZIP_DEFLATED) as z:
+    for path, rel in files(content):
+        z.write(path, rel)
+print(hmod)
+
+# The native mod, with the licence beside its sources.
+native = os.path.join(MOD, "native")
+with open(os.path.join(native, "horizon-mixin.toml"), encoding="utf-8") as f:
+    mixin = f.read()
+native_id = toml_value(mixin, "mod", "id")
+manifest = {
+    "schema": 1,
+    "id": native_id,
+    "version": toml_value(mixin, "mod", "version"),
+    "game": GAME,
+    "horizon": toml_value(mixin, "compatibility", "horizon_revision"),
+    "mixins": MIXINS,
+}
+hnmod = os.path.join(OUT, f"{native_id}.hnmod")
+with zipfile.ZipFile(hnmod, "w", zipfile.ZIP_DEFLATED) as z:
+    z.writestr("horizon-native.json", json.dumps(manifest, indent=2) + "\n")
+    for path, rel in files(native):
+        if native_entry(rel):
+            z.write(path, f"mixins/{native_id}/{rel}")
+    z.write(os.path.join(MOD, "LICENSE"), f"mixins/{native_id}/LICENSE")
+print(hnmod)

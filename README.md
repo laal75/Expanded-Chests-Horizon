@@ -36,6 +36,15 @@ To build it with other native mods, put their folders (or links to them) side by
 folder and build that. Copy `content/` to the instance's `horizon-mods/horizon_chests/`, and turn
 on both `mod.horizon_chests` and `mod.horizon_chests_core` in its `horizon-mods.txt`.
 
+## Packing
+
+```sh
+python tools/pack.py
+```
+
+writes `dist/horizon_chests.hmod` (the content; it goes in an instance's `horizon-mods/`) and
+`dist/horizon_chests_core.hnmod` (the code; `horizon-native-mods/`, or a GitHub release asset).
+
 ## License
 
 MIT; see [LICENSE](LICENSE).
