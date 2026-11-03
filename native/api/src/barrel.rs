@@ -63,7 +63,9 @@ pub(crate) fn stored_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
     let map = contents().lock().ok()?;
     map.iter()
         .find(|((d, p), _)| *d == dimension && *p == pos)
-        .and_then(|(_, (item, count))| (*count > 0 && !item.is_empty()).then(|| item.clone()))
+        // The count leaves out what sits in the output, and a barrel of a stack or less keeps it
+        // all there: the item, cleared once both are empty, is what says it holds something.
+        .and_then(|(_, (item, _))| (!item.is_empty()).then(|| item.clone()))
 }
 
 /// What a barrel placed this tick held as an item, for its first tick to take in.
