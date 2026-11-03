@@ -15,6 +15,14 @@ pub fn hooks() -> Box<dyn Hooks> {
     Box::new(HorizonChests)
 }
 
+/// For other mods (an optional dependency on `horizon_chests_core`): the item the storage barrel
+/// at `pos` in level `dimension` (`minecraft:overworld`) holds, as of its last tick; None when it
+/// is empty or no barrel is there. Horizon Machines' tubes send each item to the barrel that
+/// holds it.
+pub fn barrel_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
+    barrel::stored_item(dimension, pos)
+}
+
 /// A chest tier: its slots, as a grid of columns by rows.
 struct Tier {
     block: &'static str,

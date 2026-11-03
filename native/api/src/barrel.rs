@@ -57,6 +57,15 @@ fn contents() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>
     MAP.get_or_init(Default::default)
 }
 
+/// The item the barrel at `pos` in level `dimension` holds, as of its last tick; None for an
+/// empty barrel or none there. Other mods read it through `crate::barrel_item`.
+pub(crate) fn stored_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
+    let map = contents().lock().ok()?;
+    map.iter()
+        .find(|((d, p), _)| *d == dimension && *p == pos)
+        .and_then(|(_, (item, count))| (*count > 0 && !item.is_empty()).then(|| item.clone()))
+}
+
 /// What a barrel placed this tick held as an item, for its first tick to take in.
 fn placed() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>> {
     static MAP: OnceLock<Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>>> = OnceLock::new();
