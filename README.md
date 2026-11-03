@@ -64,7 +64,7 @@ take a few minutes.
    `horizon-launcher instance list` shows the instance id. `--trust-native-code` confirms that you
    trust the code: native mods run with your user's rights, so read it first if you like.
 3. Copy the `content/` folder into the instance's game folder as `horizon-mods/horizon_chests/`
-   (or put `horizon_chests.hmod` from `python tools/pack.py` there).
+   (or put `horizon_chests-<version>.hmod` from `python tools/pack.py` there).
 4. Turn both halves on in the instance's `horizon-mods.txt`:
 
    ```text
@@ -87,11 +87,24 @@ builds.
 
 - `content/` is **generated**: edit `tools/gen_content.py`, then run
   `python tools/gen_content.py content`. The script writes the textures too.
-- `native/api/src/` is the code: `lib.rs` (the chests: block entities, slots and screens) and
-  `barrel.rs` (the storage barrel). The chest grids are in both the code and the generator.
-- `python tools/pack.py` writes `dist/horizon_chests.hmod` (the content, for an instance's
-  `horizon-mods/`) and `dist/horizon_chests_core.hnmod` (the code, for `horizon-native-mods/` or a
-  GitHub release).
+- `native/api/src/` is the code: `lib.rs` (the chests: block entities, slots and screens),
+  `barrel.rs` (the storage barrel) and `keep.rs` (keeping contents when broken). The chest grids
+  are in both the code and the generator.
+- `python tools/pack.py` writes `dist/horizon_chests-<version>.hmod` (the content, for an
+  instance's `horizon-mods/`) and `dist/horizon_chests_core-<version>.hnmod` (the code, for
+  `horizon-native-mods/` or a GitHub release).
+
+### Versions and releases
+
+`VERSION` holds the version (semver); [CHANGELOG.md](CHANGELOG.md) says what each one changed.
+Note changes under its **Unreleased** heading as you go. To release:
+
+1. `python tools/version.py 0.3.0`: sets the version in `VERSION`, both manifests and
+   `Cargo.toml`, regenerates the content, and dates the Unreleased notes as 0.3.0.
+2. Commit, then `git tag v0.3.0` and push with `git push --follow-tags`.
+3. `python tools/pack.py`, and attach the two files in `dist/` to a GitHub release for the tag.
+
+`python tools/version.py` alone checks that every file agrees; `pack.py` refuses when they don't.
 
 ## License
 

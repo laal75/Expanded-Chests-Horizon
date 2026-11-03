@@ -1,5 +1,6 @@
-"""Packs the mod into argv[1] (default dist/): horizon_chests.hmod (the content) and
-horizon_chests_core.hnmod (the native code), as docs/api/mod-files.md describes them."""
+"""Packs the mod into argv[1] (default dist/): horizon_chests-<version>.hmod (the content) and
+horizon_chests_core-<version>.hnmod (the native code), as docs/api/mod-files.md describes them.
+Refuses when the files' versions disagree with VERSION (tools/version.py)."""
 import json
 import os
 import re
@@ -37,13 +38,19 @@ def native_entry(rel):
             or (top and re.match(r"(README|LICEN[CS]E|COPYING|NOTICE)|\.gitignore$", name)))
 
 
+sys.path.insert(0, HERE)
+import version  # noqa: E402
+
+VERSION, agree = version.check()
+if not agree:
+    sys.exit("versions disagree: run tools/version.py")
 os.makedirs(OUT, exist_ok=True)
 
 # The content mod.
 content = os.path.join(MOD, "content")
 with open(os.path.join(content, "horizon-mod.toml"), encoding="utf-8") as f:
     content_id = re.search(r'^id\s*=\s*"([^"]+)"', f.read(), re.M).group(1)
-hmod = os.path.join(OUT, f"{content_id}.hmod")
+hmod = os.path.join(OUT, f"{content_id}-{VERSION}.hmod")
 with zipfile.ZipFile(hmod, "w", zipfile.ZIP_DEFLATED) as z:
     for path, rel in files(content):
         z.write(path, rel)
@@ -62,7 +69,7 @@ manifest = {
     "horizon": toml_value(mixin, "compatibility", "horizon_revision"),
     "mixins": MIXINS,
 }
-hnmod = os.path.join(OUT, f"{native_id}.hnmod")
+hnmod = os.path.join(OUT, f"{native_id}-{VERSION}.hnmod")
 with zipfile.ZipFile(hnmod, "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("horizon-native.json", json.dumps(manifest, indent=2) + "\n")
     for path, rel in files(native):

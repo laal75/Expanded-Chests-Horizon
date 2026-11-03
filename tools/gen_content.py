@@ -8,6 +8,9 @@ import zlib
 
 ROOT = sys.argv[1]
 ID = "horizon_chests"
+# The one place the version is set (tools/version.py keeps the rest in step).
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "VERSION"), encoding="utf-8") as f:
+    VERSION = f.read().strip()
 
 
 def write(rel, obj):
@@ -116,7 +119,7 @@ for i, (name, (_, metal, *_)) in enumerate(TIERS.items()):
 # ---- manifest -------------------------------------------------------------------------------
 write("horizon-mod.toml", f'''id = "{ID}"
 name = "Horizon Chests"
-version = "0.1.0"
+version = "{VERSION}"
 description = "Bigger chests in four tiers. Content half; the code is horizon_chests_core."
 authors = []
 api = "0.2"

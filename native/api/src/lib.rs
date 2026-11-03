@@ -185,20 +185,24 @@ impl Hooks for HorizonChests {
 
     /// A player breaking a chest: its items go with the chest (keep.rs).
     fn destroy_block(&self, host: &mut dyn Host, event: &mut DestroyBlockEvent) -> Flow {
-        if let Some(t) = tier(&host.block(event.pos)) {
+        let block = host.block(event.pos);
+        if let Some(t) = tier(&block) {
             keep::destroy_block(host, event.pos, t.slots());
+        } else if block == barrel::BARREL {
+            // Its count rides on the drop already; this keeps the input and output slots too.
+            keep::destroy_block(host, event.pos, 2);
         }
         Flow::Continue
     }
 
     fn loot_drops(&self, _host: &mut dyn Host, event: &mut LootDropsEvent<'_>) {
         barrel::loot_drops(event);
-        keep::loot_drops(event, |item| tier(item).is_some());
+        keep::loot_drops(event, |item| tier(item).is_some() || item == barrel::BARREL);
     }
 
     fn place_block(&self, host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) {
         barrel::place_block(host, event);
-        if tier(&event.stack.item).is_some() {
+        if tier(&event.stack.item).is_some() || &*event.stack.item == barrel::BARREL {
             keep::place_block(host, event);
         }
     }
