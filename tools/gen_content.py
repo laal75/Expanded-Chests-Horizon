@@ -161,6 +161,9 @@ for name, (title, _, cols, rows, blast, _, _) in TIERS.items():
     lang[f"block.{ID}.{name}"] = title
     lang[f"container.{ID}.{name}"] = title
 write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"{ID}:{n}" for n in TIERS]})
+# The common chests tag, which other mods read to treat these as chests: Horizon Machines'
+# item tubes connect to what is in it.
+write("data/c/tags/block/chests.json", {"values": [f"{ID}:{n}" for n in TIERS]})
 
 # ---- crafting and the recipe book -----------------------------------------------------------
 for name, (_, _, _, _, _, pattern, key) in TIERS.items():
