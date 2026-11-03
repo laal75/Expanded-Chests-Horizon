@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LDL",
+    "DCD",
+    "LDL"
+  ],
+  "key": {
+    "L": "minecraft:glass",
+    "D": "minecraft:diamond",
+    "C": "horizon_chests:gold_chest"
+  },
+  "result": {
+    "id": "horizon_chests:diamond_chest"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "block.horizon_chests.iron_chest": "Iron Chest",
+  "container.horizon_chests.iron_chest": "Iron Chest",
+  "block.horizon_chests.gold_chest": "Gold Chest",
+  "container.horizon_chests.gold_chest": "Gold Chest",
+  "block.horizon_chests.diamond_chest": "Diamond Chest",
+  "container.horizon_chests.diamond_chest": "Diamond Chest",
+  "block.horizon_chests.netherite_chest": "Netherite Chest",
+  "container.horizon_chests.netherite_chest": "Netherite Chest",
+  "itemGroup.horizon_chests.chests": "Horizon Chests"
+}

@@ -1,0 +1,3 @@
+/native/api/target/
+/native/api/Cargo.lock
+__pycache__/

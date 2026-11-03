@@ -1,0 +1,129 @@
+//! Horizon Chests: four tiers of chest bigger than vanilla's. The blocks, menus and recipes come
+//! from the content mod; this crate gives them block entities, slots and screens. Hoppers,
+//! shift-clicks and breaking (which spills the items) work as they do for any container.
+use horizon_client::mod_api::{
+    BlockEntityContainerEvent, BlockEntityEvent, BlockEntityUpdateTagEvent, Compound, Hooks, Host,
+    ModContainer, NativeScreen, ScreenDrawEvent, ScreenEvent,
+};
+
+pub fn hooks() -> Box<dyn Hooks> {
+    Box::new(HorizonChests)
+}
+
+/// A chest tier: its slots, as a grid of columns by rows.
+struct Tier {
+    block: &'static str,
+    title: &'static str,
+    cols: usize,
+    rows: usize,
+}
+
+// The content generator (tools/gen_content.py) has the same grids. Six rows at most, as a double
+// chest has, so every screen is 222 high and fits a small window; bigger tiers grow wider.
+const TIERS: [Tier; 4] = [
+    Tier { block: "horizon_chests:iron_chest", title: "Iron Chest", cols: 9, rows: 6 },
+    Tier { block: "horizon_chests:gold_chest", title: "Gold Chest", cols: 12, rows: 6 },
+    Tier { block: "horizon_chests:diamond_chest", title: "Diamond Chest", cols: 15, rows: 6 },
+    Tier { block: "horizon_chests:netherite_chest", title: "Netherite Chest", cols: 18, rows: 6 },
+];
+
+fn tier(block: &str) -> Option<&'static Tier> {
+    TIERS.iter().find(|t| t.block == block)
+}
+
+const SLOT: f32 = 18.0;
+/// The grid's first row, under the title.
+const GRID_Y: f32 = 18.0;
+/// Between the grid and the inventory, as vanilla's chest has.
+const GAP: f32 = 14.0;
+
+impl Tier {
+    fn slots(&self) -> usize {
+        self.cols * self.rows
+    }
+
+    /// Vanilla's 176, or wider for more than 9 columns.
+    fn width(&self) -> f32 {
+        (self.cols as f32 * SLOT + 14.0).max(176.0)
+    }
+
+    fn grid_x(&self) -> f32 {
+        (self.width() - self.cols as f32 * SLOT) / 2.0 + 1.0
+    }
+
+    fn inventory_x(&self) -> f32 {
+        (self.width() - 9.0 * SLOT) / 2.0 + 1.0
+    }
+
+    fn inventory_y(&self) -> f32 {
+        GRID_Y + self.rows as f32 * SLOT + GAP
+    }
+}
+
+struct HorizonChests;
+
+impl Hooks for HorizonChests {
+    fn block_entity(
+        &self,
+        _host: &mut dyn Host,
+        event: &mut BlockEntityEvent<'_>,
+    ) -> Option<(String, Compound)> {
+        tier(event.block).map(|_| (event.block.to_owned(), Compound::new()))
+    }
+
+    fn block_entity_container(
+        &self,
+        _host: &dyn Host,
+        event: &mut BlockEntityContainerEvent<'_>,
+    ) -> Option<ModContainer> {
+        // Every side reaches every slot, both ways, as a chest's.
+        let t = tier(event.block)?;
+        let all: Vec<usize> = (0..t.slots()).collect();
+        Some(ModContainer {
+            slots: t.slots(),
+            faces: std::array::from_fn(|_| all.clone()),
+            inputs: all.clone(),
+            outputs: all,
+            menu: Some(t.block.to_owned()),
+        })
+    }
+
+    fn block_entity_update_tag(&self, event: &mut BlockEntityUpdateTagEvent<'_>) -> Option<Compound> {
+        // Clients only draw the block, so they need nothing of the entity.
+        tier(&event.entity.id).map(|_| Compound::new())
+    }
+
+    fn screen(&self, _host: &dyn Host, event: &mut ScreenEvent<'_>) -> Option<NativeScreen> {
+        let t = tier(event.block)?;
+        let (gx, inventory_y) = (t.grid_x(), t.inventory_y());
+        let slots = (0..t.slots())
+            .map(|i| Some([gx + (i % t.cols) as f32 * SLOT, GRID_Y + (i / t.cols) as f32 * SLOT]))
+            .collect();
+        Some(NativeScreen {
+            width: t.width(),
+            // The inventory's three rows, a gap and the hotbar, as vanilla's.
+            height: inventory_y + 82.0,
+            slots,
+            inventory_y,
+            inventory_x: t.inventory_x(),
+            // screen_draw writes the title and "Inventory" where the wider screens need them.
+            own_labels: true,
+            ..NativeScreen::default()
+        })
+    }
+
+    fn screen_draw(&self, host: &dyn Host, event: &mut ScreenDrawEvent<'_>) {
+        let Some(t) = tier(event.block) else {
+            return;
+        };
+        let [x, y] = event.origin;
+        host.text(event.batch, t.title, [x + t.grid_x(), y + 6.0], 0x40_4040, false);
+        host.text(
+            event.batch,
+            "Inventory",
+            [x + t.inventory_x(), y + t.inventory_y() - 11.0],
+            0x40_4040,
+            false,
+        );
+    }
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Horizon Chests",
+  "icon": "horizon_chests:diamond_chest",
+  "items": [
+    "horizon_chests:iron_chest",
+    "horizon_chests:gold_chest",
+    "horizon_chests:diamond_chest",
+    "horizon_chests:netherite_chest"
+  ]
+}

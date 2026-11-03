@@ -1,0 +1,9 @@
+{
+  "template": "minecraft:furnace",
+  "properties": {
+    "hardness": 3.0,
+    "explosion_resistance": 1200.0,
+    "requires_tool": false,
+    "sounds": "minecraft:iron_block"
+  }
+}
