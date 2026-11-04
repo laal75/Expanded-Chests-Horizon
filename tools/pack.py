@@ -1,15 +1,19 @@
 """Packs the mod into argv[1] (default dist/): horizon_chests-<version>.hmod (the content) and
 horizon_chests_core-<version>.hnmod (the native code), as docs/api/mod-files.md describes them.
-Refuses when the files' versions disagree with VERSION (tools/version.py)."""
+Refuses when the files' versions disagree with VERSION (tools/version.py).
+The packs already there move first to past-backups/<their version>/<when they were made>/."""
 import json
 import os
 import re
+import shutil
 import sys
+import time
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(MOD, "dist")
+BACKUPS = os.path.join(MOD, "past-backups")
 
 GAME = "26.3"
 # The horizon-mixins commit the launcher built this Horizon with (native-mods.json's horizon_mixins).
@@ -29,6 +33,28 @@ def toml_value(text, section, key):
     return re.search(rf'^{key}\s*=\s*"([^"]+)"', block, re.M).group(1)
 
 
+def back_up_old_packs():
+    """Moves the packs in OUT to past-backups/<version>/<YYYY-MM-DD_HH-MM-SS>/, the version read
+    from the native pack's manifest and the time from when it was made."""
+    old = [os.path.join(OUT, n) for n in sorted(os.listdir(OUT)) if n.endswith((".hmod", ".hnmod"))]
+    if not old:
+        return
+    version = "unknown"
+    for path in old:
+        if path.endswith(".hnmod"):
+            try:
+                with zipfile.ZipFile(path) as z:
+                    version = json.loads(z.read("horizon-native.json"))["version"]
+            except (KeyError, ValueError, zipfile.BadZipFile):
+                pass
+    made = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(max(os.path.getmtime(p) for p in old)))
+    folder = os.path.join(BACKUPS, version, made)
+    os.makedirs(folder, exist_ok=True)
+    for path in old:
+        shutil.move(path, os.path.join(folder, os.path.basename(path)))
+    print(f"moved the old packs to {folder}")
+
+
 def native_entry(rel):
     """What mod-files.md lets a bundle hold under mixins/<id>/."""
     name = rel.rsplit("/", 1)[-1]
@@ -45,6 +71,7 @@ VERSION, agree = version.check()
 if not agree:
     sys.exit("versions disagree: run tools/version.py")
 os.makedirs(OUT, exist_ok=True)
+back_up_old_packs()
 
 # The content mod.
 content = os.path.join(MOD, "content")

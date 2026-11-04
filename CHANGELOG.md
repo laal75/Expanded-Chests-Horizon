@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+### Changed
+- `tools/pack.py` moves the packs already in `dist/` to `past-backups/<version>/<time made>/`
+  before writing new ones.
+
 ## 0.2.0 - 2026-11-03
 
 ### Added
