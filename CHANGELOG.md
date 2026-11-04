@@ -6,6 +6,8 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 ## Unreleased
 
 ### Changed
+- Builds on Horizon `67dad0d` (the 2026-11-04 Nightly) instead of `02c8607`, which launcher
+  0.2.38 no longer builds. No code changes were needed.
 - `tools/pack.py` moves the packs already in `dist/` to `past-backups/<version>/<time made>/`
   before writing new ones.
 

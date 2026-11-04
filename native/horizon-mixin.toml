@@ -7,7 +7,7 @@ version = "0.2.0"
 
 # The same Horizon as Horizon Machines, so the two build into one game.
 [compatibility]
-horizon_revision = "02c8607ee8ebd216f2f535c1eb7b62b572830df2"
+horizon_revision = "67dad0d1a5adca139b426c8114e74a33b376ba64"
 
 [api]
 path = "api"

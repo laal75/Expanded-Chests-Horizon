@@ -79,7 +79,8 @@ links to them) side by side in one folder and run `native-build` on that folder.
 
 ### Horizon version
 
-The code builds on Horizon commit `02c8607` (hooks API 359), set in `native/horizon-mixin.toml`, the
+The code builds on Horizon commit `67dad0d` (the 2026-11-04 Nightly, hooks API 359), set in
+`native/horizon-mixin.toml` and `native/api/Cargo.toml`, the
 same as Horizon Machines, so the two build into one game. The launcher fetches that version when it
 builds.
 
