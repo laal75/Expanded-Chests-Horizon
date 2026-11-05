@@ -5,6 +5,9 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+### Fixed
+- The barrel's and kept chests' tooltip lines were invisible (their colour had no alpha).
+
 ## 0.3.0 - 2026-11-05
 
 ### Changed

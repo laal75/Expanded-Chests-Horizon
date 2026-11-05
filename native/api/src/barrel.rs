@@ -238,11 +238,11 @@ pub(crate) fn tooltip(event: &mut TooltipEvent<'_>) {
     if let Some((item, count, upgrades)) = carried(event.stack) {
         if !item.is_empty() {
             let name = item.rsplit(':').next().unwrap_or(&item).replace('_', " ");
-            event.lines.push((Text::literal(format!("{count} {name}")), 0xAA_AAAA));
+            event.lines.push((Text::literal(format!("{count} {name}")), 0xFFAA_AAAA));
         }
         if upgrades > 0 {
             let s = if upgrades == 1 { "" } else { "s" };
-            event.lines.push((Text::literal(format!("{upgrades} Storage Upgrade{s}")), 0xAA_AAAA));
+            event.lines.push((Text::literal(format!("{upgrades} Storage Upgrade{s}")), 0xFFAA_AAAA));
         }
     }
 }

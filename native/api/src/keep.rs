@@ -82,7 +82,7 @@ pub(crate) fn tooltip(event: &mut TooltipEvent<'_>) {
         return;
     };
     let (stacks, count) = items.iter().flatten().fold((0, 0), |(n, c), s| (n + 1, c + s.count));
-    event.lines.push((Text::literal(format!("{count} items in {stacks} stacks")), 0xAA_AAAA));
+    event.lines.push((Text::literal(format!("{count} items in {stacks} stacks")), 0xFFAA_AAAA));
 }
 
 /// The items a chest item carries, from its custom data.
