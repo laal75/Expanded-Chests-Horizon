@@ -46,7 +46,7 @@ Every recipe unlocks in the recipe book the first time you hold one of its ingre
 
 - The chests are in the common `c:chests` block tag, and the storage barrel in `c:barrels`, so mods
   that read those tags treat them as chests and barrels.
-- [Machine Tech](https://github.com/laal75/horizon-machines)' item tubes connect to them, and
+- [Machine Tech](https://github.com/laal75/machines-tech-horizon)' item tubes connect to them, and
   fill each storage barrel with the item it already holds before using any chest.
 - For other native mods: `horizon_chests_core::barrel_item(dimension, pos)` returns the item a
   storage barrel holds. Declare an optional dependency on `horizon_chests_core` to call it.
