@@ -1,4 +1,4 @@
-# Horizon Chests
+# Expanded Chests
 
 Bigger chests and storage barrels for [Horizon](https://github.com/horizon-rust/horizon), the Rust
 reimplementation of Minecraft: Java Edition. Everything in it is original: names, numbers, code and
@@ -17,7 +17,17 @@ textures.
 
 Every chest is six rows tall, like a double chest, so its screen fits a small window; bigger tiers
 grow wider. Hoppers reach every slot from any side, shift-clicks move stacks as a chest's do, and
-breaking a chest spills what's in it.
+a broken chest keeps what's in it, as a shulker box does.
+
+**Chest Upgrades:** sneak and right-click a chest holding the next tier's Chest Upgrade, and it
+becomes that tier where it stands, keeping everything inside. The upgrade is used up.
+
+| Chest Upgrade | Turns | Crafted from |
+|---|---|---|
+| Iron Chest Upgrade | a single chest into an Iron Chest | 8 iron ingots around planks |
+| Gold Chest Upgrade | an Iron Chest into a Gold Chest | 8 gold ingots around an iron ingot |
+| Diamond Chest Upgrade | a Gold Chest into a Diamond Chest | 4 diamonds and 4 glass around a gold ingot |
+| Obsidian Chest Upgrade | a Diamond Chest into an Obsidian Chest | 8 obsidian around a diamond |
 
 ### Storage Barrel
 
@@ -36,14 +46,14 @@ Every recipe unlocks in the recipe book the first time you hold one of its ingre
 
 - The chests are in the common `c:chests` block tag, and the storage barrel in `c:barrels`, so mods
   that read those tags treat them as chests and barrels.
-- [Horizon Machines](https://github.com/laal75/horizon-machines)' item tubes connect to them, and
+- [Machine Tech](https://github.com/laal75/horizon-machines)' item tubes connect to them, and
   fill each storage barrel with the item it already holds before using any chest.
 - For other native mods: `horizon_chests_core::barrel_item(dimension, pos)` returns the item a
   storage barrel holds. Declare an optional dependency on `horizon_chests_core` to call it.
 
 ## Install
 
-Horizon Chests is a Horizon **native mod**: the Horizon launcher compiles it into the game for you.
+Expanded Chests is a Horizon **native mod**: the Horizon launcher compiles it into the game for you.
 It has two halves, and you need both:
 
 - the content (`content/`, or `horizon_chests.hmod`): blocks, items, recipes and textures
@@ -57,7 +67,7 @@ take a few minutes.
 2. Build the code into an instance (a new one is safest while you try it):
 
    ```sh
-   horizon-launcher instance create "Horizon Chests"
+   horizon-launcher instance create "Expanded Chests"
    horizon-launcher native-build native --instance <instance id> --trust-native-code
    ```
 
@@ -74,14 +84,14 @@ take a few minutes.
 
 5. Play the instance: `horizon-launcher play --instance <instance id>`.
 
-To build it together with other native mods such as Horizon Machines, put their `native` folders (or
+To build it together with other native mods such as Machine Tech, put their `native` folders (or
 links to them) side by side in one folder and run `native-build` on that folder.
 
 ### Horizon version
 
 The code builds on Horizon commit `67dad0d` (the 2026-11-04 Nightly, hooks API 359), set in
 `native/horizon-mixin.toml` and `native/api/Cargo.toml`, the
-same as Horizon Machines, so the two build into one game. The launcher fetches that version when it
+same as Machine Tech, so the two build into one game. The launcher fetches that version when it
 builds.
 
 ## Development

@@ -1,4 +1,4 @@
-"""Writes the Horizon Chests content mod (data, assets and original textures) into argv[1]."""
+"""Writes the Expanded Chests content mod (data, assets and original textures) into argv[1]."""
 import json
 import os
 import random
@@ -55,11 +55,8 @@ TIERS = {
     "obsidian_chest": ("Obsidian Chest", (52, 38, 76), 18, 6, 1200.0,
                        ["OOO", "OCO", "OOO"],
                        {"O": "minecraft:obsidian", "C": f"{ID}:diamond_chest"}),
-    # Replaced by the Obsidian Chest in 0.3.0: still a block, so chests already placed keep
-    # working, but no longer crafted or in the creative tab.
-    "netherite_chest": ("Netherite Chest", (78, 70, 74), 18, 6, 1200.0, None, None),
 }
-LEGACY = {"netherite_chest"}
+LEGACY = set()
 WOOD = (150, 108, 62)
 
 
@@ -122,7 +119,7 @@ for i, (name, (_, metal, *_)) in enumerate(TIERS.items()):
 
 # ---- manifest -------------------------------------------------------------------------------
 write("horizon-mod.toml", f'''id = "{ID}"
-name = "Horizon Chests"
+name = "Expanded Chests"
 version = "{VERSION}"
 description = "Bigger chests in four tiers. Content half; the code is horizon_chests_core."
 authors = []
@@ -296,6 +293,50 @@ write(f"assets/{ID}/items/storage_upgrade.json",
 lang[f"item.{ID}.storage_upgrade"] = "Storage Upgrade"
 
 
+# ---- chest upgrades ---------------------------------------------------------------------------
+# Sneak and right-click a chest with one to make it the next tier where it stands, keeping what
+# it holds (native/upgrade_chest.rs). Each is planks, or the tier before's metal, ringed by the
+# next tier's.
+def chest_upgrade_icon(metal):
+    """A little chest in the tier's metal on the end of a diagonal stick."""
+    px = [[(0, 0, 0, 0)] * 16 for _ in range(16)]
+    stick = (120, 84, 46)
+    for i in range(9):
+        x, y = 1 + i, 14 - i
+        px[y][x] = shade(stick, 1.0)
+        if x + 1 < 16:
+            px[y][x + 1] = shade(stick, 0.7)
+    # The chest: wood in a metal frame, lid seam and latch.
+    for y in range(2, 10):
+        for x in range(7, 15):
+            edge = x in (7, 14) or y in (2, 9)
+            px[y][x] = shade(metal, 0.85) if edge else shade(WOOD, 0.95 if y % 2 else 0.85)
+    for x in range(8, 14):
+        px[5][x] = shade(metal, 0.7)
+    px[5][10] = px[5][11] = px[6][10] = px[6][11] = shade(metal, 1.15)
+    return px
+
+
+CHEST_UPGRADES = {
+    "iron_chest_upgrade": ("Iron Chest Upgrade", "iron_chest",
+                           ["III", "IPI", "III"], {"I": "minecraft:iron_ingot", "P": "#minecraft:planks"}),
+    "gold_chest_upgrade": ("Gold Chest Upgrade", "gold_chest",
+                           ["GGG", "GIG", "GGG"], {"G": "minecraft:gold_ingot", "I": "minecraft:iron_ingot"}),
+    "diamond_chest_upgrade": ("Diamond Chest Upgrade", "diamond_chest",
+                              ["LDL", "DGD", "LDL"],
+                              {"L": "minecraft:glass", "D": "minecraft:diamond", "G": "minecraft:gold_ingot"}),
+    "obsidian_chest_upgrade": ("Obsidian Chest Upgrade", "obsidian_chest",
+                               ["OOO", "ODO", "OOO"], {"O": "minecraft:obsidian", "D": "minecraft:diamond"}),
+}
+for name, (title, tier, _, _) in CHEST_UPGRADES.items():
+    png(f"assets/{ID}/textures/item/{name}.png", chest_upgrade_icon(TIERS[tier][1]))
+    write(f"data/{ID}/horizon/item/{name}.json", {"template": "minecraft:sugar"})
+    write(f"assets/{ID}/models/item/{name}.json",
+          {"parent": "minecraft:item/generated", "textures": {"layer0": f"{ID}:item/{name}"}})
+    write(f"assets/{ID}/items/{name}.json", {"model": {"type": "minecraft:model", "model": f"{ID}:item/{name}"}})
+    lang[f"item.{ID}.{name}"] = title
+
+
 # ---- crafting and the recipe book -----------------------------------------------------------
 def recipe(name, pattern, key, unlock):
     write(f"data/{ID}/recipe/{name}.json", {
@@ -323,11 +364,14 @@ recipe(BARREL, ["PIP", "IBI", "PIP"],
        {"P": "#minecraft:planks", "I": "minecraft:iron_ingot", "B": "minecraft:barrel"}, "minecraft:barrel")
 recipe("storage_upgrade", ["IGI", "GCG", "IGI"],
        {"I": "minecraft:iron_ingot", "G": "minecraft:gold_ingot", "C": "minecraft:chest"}, f"{ID}:{BARREL}")
+for name, (_, _, pattern, key) in CHEST_UPGRADES.items():
+    recipe(name, pattern, key, next(v for v in key.values() if not v.startswith("#")))
 
-lang[f"itemGroup.{ID}.chests"] = "Horizon Chests"
+lang[f"itemGroup.{ID}.chests"] = "Expanded Chests"
 write(f"assets/{ID}/lang/en_us.json", lang)
 write(f"data/{ID}/horizon/creative_tab/chests.json", {
-    "title": "Horizon Chests",
+    "title": "Expanded Chests",
     "icon": f"{ID}:diamond_chest",
-    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"],
+    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"]
+             + [f"{ID}:{n}" for n in CHEST_UPGRADES],
 })

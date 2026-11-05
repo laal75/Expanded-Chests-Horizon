@@ -1,11 +1,11 @@
-# Horizon Chests: the code half (docs/native-mods.md, "Trait mods"). The blocks, menus and
+# Expanded Chests: the code half (docs/native-mods.md, "Trait mods"). The blocks, menus and
 # recipes are the content mod in ../content. Build with
 # `horizon-launcher native-build <this folder> --trust-native-code`.
 [mod]
 id = "horizon_chests_core"
-version = "0.3.0"
+version = "0.3.1"
 
-# The same Horizon as Horizon Machines, so the two build into one game.
+# The same Horizon as Machine Tech, so the two build into one game.
 [compatibility]
 horizon_revision = "67dad0d1a5adca139b426c8114e74a33b376ba64"
 
@@ -23,4 +23,19 @@ helper = "keep_upgrades.rs"
 bindings = [
     { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
     { name = "pos", ty = "[i32; 3]", value = "pos" },
+]
+
+# Sneak and right-click a chest with the next tier's materials: it becomes that tier where it
+# stands, keeping what it holds (upgrade_chest.rs). Setting a block from its id is `Game`'s.
+[[injection]]
+id = "upgrade_chest"
+hook = "use_item_on"
+hook_version = 1
+kind = "HEAD"
+helper = "upgrade_chest.rs"
+bindings = [
+    { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+    { name = "stack", ty = "&horizon_client::mod_api::ItemStack", value = "stack" },
+    { name = "pos", ty = "[i32; 3]", value = "pos" },
+    { name = "claimed", ty = "&mut bool", value = "&mut *claimed" },
 ]

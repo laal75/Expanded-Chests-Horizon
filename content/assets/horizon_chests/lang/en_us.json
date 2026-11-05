@@ -7,10 +7,12 @@
   "container.horizon_chests.diamond_chest": "Diamond Chest",
   "block.horizon_chests.obsidian_chest": "Obsidian Chest",
   "container.horizon_chests.obsidian_chest": "Obsidian Chest",
-  "block.horizon_chests.netherite_chest": "Netherite Chest",
-  "container.horizon_chests.netherite_chest": "Netherite Chest",
   "block.horizon_chests.storage_barrel": "Storage Barrel",
   "container.horizon_chests.storage_barrel": "Storage Barrel",
   "item.horizon_chests.storage_upgrade": "Storage Upgrade",
-  "itemGroup.horizon_chests.chests": "Horizon Chests"
+  "item.horizon_chests.iron_chest_upgrade": "Iron Chest Upgrade",
+  "item.horizon_chests.gold_chest_upgrade": "Gold Chest Upgrade",
+  "item.horizon_chests.diamond_chest_upgrade": "Diamond Chest Upgrade",
+  "item.horizon_chests.obsidian_chest_upgrade": "Obsidian Chest Upgrade",
+  "itemGroup.horizon_chests.chests": "Expanded Chests"
 }

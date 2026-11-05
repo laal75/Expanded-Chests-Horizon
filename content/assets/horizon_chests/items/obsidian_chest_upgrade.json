@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "horizon_chests:item/obsidian_chest_upgrade"
+  }
+}

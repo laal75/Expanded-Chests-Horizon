@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "front": "horizon_chests:block/netherite_chest_front",
-    "side": "horizon_chests:block/netherite_chest_side",
-    "top": "horizon_chests:block/netherite_chest_top"
-  }
-}

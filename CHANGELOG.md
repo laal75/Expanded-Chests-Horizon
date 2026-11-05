@@ -5,6 +5,26 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.3.1 - 2026-11-05
+
+### Added
+- **Chest Upgrades** (Iron, Gold, Diamond, Obsidian): sneak and right-click a chest with the next
+  tier's upgrade to upgrade it in place, keeping its items. They replace upgrading with loose
+  materials in your inventory.
+- A Sort button on every chest's screen (right end of the title row): merges stacks and orders them by item.
+
+### Removed
+- The Netherite Chest (replaced by the Obsidian Chest in 0.3.0). Any still placed disappear, with
+  what they hold: empty them first.
+
+### Changed
+- The mod is now called Expanded Chests (its ids are unchanged, so worlds keep their chests).
+
+### Added
+- Upgrade a chest where it stands, keeping what it holds: sneak and right-click it with the next
+  tier's materials (8 iron ingots on a single chest, 8 gold ingots on an Iron Chest, 4 diamonds
+  and 4 glass on a Gold Chest, 8 obsidian on a Diamond Chest).
+
 ### Fixed
 - The barrel's and kept chests' tooltip lines were invisible (their colour had no alpha).
 

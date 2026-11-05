@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LDL",
+    "DGD",
+    "LDL"
+  ],
+  "key": {
+    "L": "minecraft:glass",
+    "D": "minecraft:diamond",
+    "G": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "horizon_chests:diamond_chest_upgrade"
+  }
+}

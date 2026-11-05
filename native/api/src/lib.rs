@@ -1,16 +1,17 @@
-//! Horizon Chests: four tiers of chest bigger than vanilla's, and a storage barrel that holds
+//! Expanded Chests: four tiers of chest bigger than vanilla's, and a storage barrel that holds
 //! up to 1024 stacks of one item (barrel.rs). The blocks, menus and recipes come from the content
 //! mod; this crate gives them block entities, slots and screens. Hoppers, shift-clicks and
 //! breaking (which spills the items) work as they do for any container.
 use horizon_client::mod_api::{
     BlockEntityContainerEvent, BlockEntityEvent, BlockEntityTickEvent, BlockEntityTicksEvent,
-    BlockEntityUpdateTagEvent, Compound, DestroyBlockEvent, Flow, Hooks, Host, LootDropsEvent, MenuSlotRulesEvent,
-    ModContainer, NativeScreen, PlaceBlockEvent, ScreenDrawEvent, ScreenEvent, TooltipEvent,
-    UseItemOnEvent,
+    BlockEntityUpdateTagEvent, Compound, DestroyBlockEvent, Flow, Hooks, Host, LootDropsEvent, MenuButtonEvent,
+    MenuSlotRulesEvent, ModContainer, NativeScreen, PlaceBlockEvent, ScreenClickEvent, ScreenDrawEvent, ScreenEvent,
+    ScreenTooltipEvent, TooltipEvent, UseItemOnEvent,
 };
 
 mod barrel;
 mod keep;
+mod sort;
 
 pub fn hooks() -> Box<dyn Hooks> {
     Box::new(HorizonChests)
@@ -34,13 +35,11 @@ struct Tier {
 
 // The content generator (tools/gen_content.py) has the same grids. Six rows at most, as a double
 // chest has, so every screen is 222 high and fits a small window; bigger tiers grow wider.
-// The Netherite Chest is the Obsidian Chest's predecessor, kept so placed ones still work.
-const TIERS: [Tier; 5] = [
+const TIERS: [Tier; 4] = [
     Tier { block: "horizon_chests:iron_chest", title: "Iron Chest", cols: 9, rows: 6 },
     Tier { block: "horizon_chests:gold_chest", title: "Gold Chest", cols: 12, rows: 6 },
     Tier { block: "horizon_chests:diamond_chest", title: "Diamond Chest", cols: 15, rows: 6 },
     Tier { block: "horizon_chests:obsidian_chest", title: "Obsidian Chest", cols: 18, rows: 6 },
-    Tier { block: "horizon_chests:netherite_chest", title: "Netherite Chest", cols: 18, rows: 6 },
 ];
 
 fn tier(block: &str) -> Option<&'static Tier> {
@@ -73,6 +72,11 @@ impl Tier {
 
     fn inventory_y(&self) -> f32 {
         GRID_Y + self.rows as f32 * SLOT + GAP
+    }
+
+    /// The sort button: at the right end of the title row, over the grid's last column.
+    fn sort_at(&self) -> [f32; 2] {
+        [self.grid_x() + self.cols as f32 * SLOT - 2.0 - sort::SIZE, 5.0]
     }
 }
 
@@ -173,6 +177,30 @@ impl Hooks for HorizonChests {
             0x40_4040,
             false,
         );
+        let [bx, by] = t.sort_at();
+        sort::draw(host, event.batch, [x + bx, y + by]);
+    }
+
+    fn screen_click(&self, _host: &dyn Host, event: &mut ScreenClickEvent<'_>) -> Option<i32> {
+        let t = tier(event.block)?;
+        (!event.right && sort::over(t.sort_at(), event.at)).then_some(sort::SORT_BUTTON)
+    }
+
+    fn screen_tooltip(&self, _host: &dyn Host, event: &mut ScreenTooltipEvent<'_>) {
+        if tier(event.block).is_some_and(|t| sort::over(t.sort_at(), event.at)) {
+            event.lines.push("Sort".to_owned());
+        }
+    }
+
+    fn menu_button(&self, host: &mut dyn Host, event: &mut MenuButtonEvent<'_>) {
+        if event.id != sort::SORT_BUTTON {
+            return;
+        }
+        let Some(t) = tier(&event.entity.id) else {
+            return;
+        };
+        let slots = t.slots();
+        sort::sort(host, &mut event.entity.items, slots);
     }
 
     fn menu_slot_rules(&self, event: &mut MenuSlotRulesEvent<'_>) {
