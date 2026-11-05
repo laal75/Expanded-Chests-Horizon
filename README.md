@@ -53,6 +53,38 @@ Every recipe unlocks in the recipe book the first time you hold one of its ingre
 
 ## Install
 
+### Easy install
+
+The ready-made packs are in the [`dist`](dist) folder, so there is nothing to clone:
+
+| File | What it is | Where it goes in the game folder |
+|---|---|---|
+| [`horizon_chests-0.3.1.hmod`](dist/horizon_chests-0.3.1.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
+| [`horizon_chests_core-0.3.1.hnmod`](dist/horizon_chests_core-0.3.1.hnmod) | The code | `horizon-native-mods/` |
+
+1. Download both files. The game folder of the main Horizon instance is `%APPDATA%\horizon` on
+   Windows; `horizon-launcher instance list` shows your instances.
+2. Copy each file into the folder the table names.
+3. Turn both halves on in the game folder's `horizon-mods.txt`:
+
+   ```text
+   mod.horizon_chests:true
+   mod.horizon_chests_core:true
+   ```
+
+4. Build the code into the instance. This also rebuilds your other installed native mods, so they
+   stay in the game. The first build downloads a Rust toolchain and takes 20 to 30 minutes; later
+   ones take a few minutes.
+
+   ```sh
+   horizon-launcher native-build --instance <instance id> --trust-native-code --allow-version-mismatch
+   ```
+
+   `--trust-native-code` confirms that you trust the code: native mods run with your user's rights.
+5. Play the instance: `horizon-launcher play --instance <instance id>`.
+
+### From source
+
 Expanded Chests is a Horizon **native mod**: the Horizon launcher compiles it into the game for you.
 It has two halves, and you need both:
 
