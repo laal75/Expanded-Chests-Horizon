@@ -3,7 +3,7 @@
 # `horizon-launcher native-build <this folder> --trust-native-code`.
 [mod]
 id = "horizon_chests_core"
-version = "0.2.0"
+version = "0.2.1"
 
 # The same Horizon as Horizon Machines, so the two build into one game.
 [compatibility]
@@ -11,3 +11,16 @@ horizon_revision = "67dad0d1a5adca139b426c8114e74a33b376ba64"
 
 [api]
 path = "api"
+
+# A broken storage barrel's Storage Upgrades go with it (keep_upgrades.rs): no side reaches the
+# upgrade slot, so only `Game` can empty it before the block spills.
+[[injection]]
+id = "keep_upgrades"
+hook = "destroy_block"
+hook_version = 1
+kind = "HEAD"
+helper = "keep_upgrades.rs"
+bindings = [
+    { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+    { name = "pos", ty = "[i32; 3]", value = "pos" },
+]

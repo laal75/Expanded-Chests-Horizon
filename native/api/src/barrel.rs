@@ -3,7 +3,8 @@
 //! stacks with five. Three slots face the world: what goes into the input is added to the count,
 //! and the output is kept topped up from it, so hoppers and tubes fill and empty it as they do a
 //! chest. Broken, it drops as a barrel that still holds its count (loot_drops), and placing that
-//! barrel gives the count back (place_block).
+//! barrel gives the count back (place_block), with its Storage Upgrades (keep_upgrades.rs takes
+//! them out of the slot as it breaks, so they don't spill).
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 
@@ -35,6 +36,7 @@ const DATA_SLOTS: usize = 4;
 /// The `minecraft:custom_data` keys a dropped barrel carries its contents under.
 const KEY_ITEM: &str = "barrel_item";
 const KEY_COUNT: &str = "barrel_count";
+const KEY_UPGRADES: &str = "barrel_upgrades";
 
 pub(crate) fn container() -> ModContainer {
     ModContainer {
@@ -52,8 +54,8 @@ pub(crate) fn screen_slots() -> Vec<Option<[f32; 2]>> {
 
 /// Each barrel's item and count, by level and position, as of its last tick: what a broken one
 /// drops, since the loot hook can't see its block entity.
-fn contents() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>> {
-    static MAP: OnceLock<Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>>> = OnceLock::new();
+fn contents() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32, u32)>> {
+    static MAP: OnceLock<Mutex<HashMap<(&'static str, [i32; 3]), (String, u32, u32)>>> = OnceLock::new();
     MAP.get_or_init(Default::default)
 }
 
@@ -65,12 +67,12 @@ pub(crate) fn stored_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
         .find(|((d, p), _)| *d == dimension && *p == pos)
         // The count leaves out what sits in the output, and a barrel of a stack or less keeps it
         // all there: the item, cleared once both are empty, is what says it holds something.
-        .and_then(|(_, (item, _))| (!item.is_empty()).then(|| item.clone()))
+        .and_then(|(_, (item, ..))| (!item.is_empty()).then(|| item.clone()))
 }
 
 /// What a barrel placed this tick held as an item, for its first tick to take in.
-fn placed() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>> {
-    static MAP: OnceLock<Mutex<HashMap<(&'static str, [i32; 3]), (String, u32)>>> = OnceLock::new();
+fn placed() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32, u32)>> {
+    static MAP: OnceLock<Mutex<HashMap<(&'static str, [i32; 3]), (String, u32, u32)>>> = OnceLock::new();
     MAP.get_or_init(Default::default)
 }
 
@@ -95,12 +97,19 @@ pub(crate) fn tick(host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
     let pos = event.pos;
     let dimension = host.dimension();
     let (mut item, mut count) = stored(event.entity);
-    if let Some((i, c)) = placed().lock().unwrap().remove(&(dimension, pos)) {
-        (item, count) = (i, c);
-    }
+    let carried_upgrades = match placed().lock().unwrap().remove(&(dimension, pos)) {
+        Some((i, c, u)) => {
+            (item, count) = (i, c);
+            u
+        }
+        None => 0,
+    };
     let be = &mut **event.entity;
     if be.items.len() < SLOTS {
         be.items.resize(SLOTS, None);
+    }
+    if carried_upgrades > 0 && be.items[UPGRADES].is_none() {
+        be.items[UPGRADES] = Some(ItemStack::new(UPGRADE, carried_upgrades.min(MAX_UPGRADES)));
     }
     let upgrades = be.items[UPGRADES]
         .as_ref()
@@ -150,7 +159,7 @@ pub(crate) fn tick(host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
     be.data[D_COUNT_HIGH] = (total >> 15) as i32;
     be.data[D_STACKS] = stacks as i32;
     be.data[D_STACK_SIZE] = stack_size as i32;
-    contents().lock().unwrap().insert((dimension, pos), (item, count));
+    contents().lock().unwrap().insert((dimension, pos), (item, count, upgrades));
 }
 
 /// The input takes plain items, the upgrade slot Storage Upgrades (five at most).
@@ -194,15 +203,21 @@ pub(crate) fn loot_drops(event: &mut LootDropsEvent<'_>) {
         return;
     };
     let key = (dimension_key(event.context.dimension), pos);
-    let Some((item, count)) = contents().lock().unwrap().remove(&key) else {
+    let Some((item, count, upgrades)) = contents().lock().unwrap().remove(&key) else {
         return;
     };
-    if item.is_empty() || count == 0 {
+    let holds = !item.is_empty() && count > 0;
+    if !holds && upgrades == 0 {
         return;
     }
     let mut data = Compound::new();
-    data.insert(KEY_ITEM.into(), Tag::String(item.as_str().into()));
-    data.insert(KEY_COUNT.into(), Tag::Int(count as i32));
+    if holds {
+        data.insert(KEY_ITEM.into(), Tag::String(item.as_str().into()));
+        data.insert(KEY_COUNT.into(), Tag::Int(count as i32));
+    }
+    if upgrades > 0 {
+        data.insert(KEY_UPGRADES.into(), Tag::Int(upgrades as i32));
+    }
     drop.data_mut().set_other("minecraft:custom_data", Some(Tag::Compound(data)));
 }
 
@@ -211,8 +226,8 @@ pub(crate) fn place_block(host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) 
     if &*event.stack.item != BARREL {
         return;
     }
-    if let Some((item, count)) = carried(event.stack) {
-        placed().lock().unwrap().insert((host.dimension(), event.pos), (item, count));
+    if let Some(held) = carried(event.stack) {
+        placed().lock().unwrap().insert((host.dimension(), event.pos), held);
     }
 }
 
@@ -220,26 +235,33 @@ pub(crate) fn tooltip(event: &mut TooltipEvent<'_>) {
     if &*event.stack.item != BARREL {
         return;
     }
-    if let Some((item, count)) = carried(event.stack) {
-        let name = item.rsplit(':').next().unwrap_or(&item).replace('_', " ");
-        event.lines.push((Text::literal(format!("{count} {name}")), 0xAA_AAAA));
+    if let Some((item, count, upgrades)) = carried(event.stack) {
+        if !item.is_empty() {
+            let name = item.rsplit(':').next().unwrap_or(&item).replace('_', " ");
+            event.lines.push((Text::literal(format!("{count} {name}")), 0xAA_AAAA));
+        }
+        if upgrades > 0 {
+            let s = if upgrades == 1 { "" } else { "s" };
+            event.lines.push((Text::literal(format!("{upgrades} Storage Upgrade{s}")), 0xAA_AAAA));
+        }
     }
 }
 
-/// What a barrel item holds, from its custom data.
-fn carried(stack: &ItemStack) -> Option<(String, u32)> {
+/// What a barrel item holds, from its custom data: its item and count (empty and 0 for none),
+/// and its Storage Upgrades.
+fn carried(stack: &ItemStack) -> Option<(String, u32, u32)> {
     let Tag::Compound(data) = stack.data()?.other("minecraft:custom_data")? else {
         return None;
     };
-    let item = match get(data, KEY_ITEM)? {
-        Tag::String(s) => s.to_string_lossy(),
-        _ => return None,
+    let (item, count) = match (get(data, KEY_ITEM), get(data, KEY_COUNT)) {
+        (Some(Tag::String(s)), Some(Tag::Int(n))) if *n > 0 => (s.to_string_lossy(), *n as u32),
+        _ => (String::new(), 0),
     };
-    let count = match get(data, KEY_COUNT)? {
-        Tag::Int(n) if *n > 0 => *n as u32,
-        _ => return None,
+    let upgrades = match get(data, KEY_UPGRADES) {
+        Some(Tag::Int(n)) if *n > 0 => *n as u32,
+        _ => 0,
     };
-    Some((item, count))
+    (count > 0 || upgrades > 0).then_some((item, count, upgrades))
 }
 
 /// `map[name]`, with the key type taken from the map (the game's NBT string isn't exported).

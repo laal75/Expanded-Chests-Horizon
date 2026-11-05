@@ -23,7 +23,7 @@ breaking a chest spills what's in it.
 
 Holds one kind of item: 32 stacks, doubled by each **Storage Upgrade**, up to 1,024 stacks with
 five. Hoppers and tubes fill and empty it like a chest. Break it and it drops as a barrel that still
-holds its items; place it again to get them back.
+holds its items and its Storage Upgrades; place it again to get them back.
 
 | Item | Crafted from |
 |---|---|

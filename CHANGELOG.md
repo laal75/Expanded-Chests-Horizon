@@ -5,6 +5,12 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.2.1 - 2026-11-05
+
+### Added
+- A broken storage barrel keeps its Storage Upgrades as well as its items, and placing it puts
+  them back; its tooltip shows them.
+
 ### Changed
 - Builds on Horizon `67dad0d` (the 2026-11-04 Nightly) instead of `02c8607`, which launcher
   0.2.38 no longer builds. No code changes were needed.
