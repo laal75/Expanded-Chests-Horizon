@@ -4,7 +4,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "horizon_chests:netherite_chest"
+        "recipe": "horizon_chests:obsidian_chest"
       }
     },
     "has_item": {
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "horizon_chests:netherite_chest"
+      "horizon_chests:obsidian_chest"
     ]
   }
 }

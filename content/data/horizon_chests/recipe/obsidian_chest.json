@@ -2,16 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "ONO",
+    "OOO",
     "OCO",
     "OOO"
   ],
   "key": {
     "O": "minecraft:obsidian",
-    "N": "minecraft:netherite_ingot",
     "C": "horizon_chests:diamond_chest"
   },
   "result": {
-    "id": "horizon_chests:netherite_chest"
+    "id": "horizon_chests:obsidian_chest"
   }
 }

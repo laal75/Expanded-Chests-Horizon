@@ -13,7 +13,7 @@ textures.
 | Iron Chest | 54 (9 × 6) | A chest ringed with 8 iron ingots |
 | Gold Chest | 72 (12 × 6) | An Iron Chest ringed with 8 gold ingots |
 | Diamond Chest | 90 (15 × 6) | A Gold Chest with 4 diamonds and 4 glass |
-| Netherite Chest | 108 (18 × 6) | A Diamond Chest with a netherite ingot and 7 obsidian; blast-proof |
+| Obsidian Chest | 108 (18 × 6) | A Diamond Chest ringed with 8 obsidian; blast-proof |
 
 Every chest is six rows tall, like a double chest, so its screen fits a small window; bigger tiers
 grow wider. Hoppers reach every slot from any side, shift-clicks move stacks as a chest's do, and

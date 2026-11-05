@@ -34,10 +34,12 @@ struct Tier {
 
 // The content generator (tools/gen_content.py) has the same grids. Six rows at most, as a double
 // chest has, so every screen is 222 high and fits a small window; bigger tiers grow wider.
-const TIERS: [Tier; 4] = [
+// The Netherite Chest is the Obsidian Chest's predecessor, kept so placed ones still work.
+const TIERS: [Tier; 5] = [
     Tier { block: "horizon_chests:iron_chest", title: "Iron Chest", cols: 9, rows: 6 },
     Tier { block: "horizon_chests:gold_chest", title: "Gold Chest", cols: 12, rows: 6 },
     Tier { block: "horizon_chests:diamond_chest", title: "Diamond Chest", cols: 15, rows: 6 },
+    Tier { block: "horizon_chests:obsidian_chest", title: "Obsidian Chest", cols: 18, rows: 6 },
     Tier { block: "horizon_chests:netherite_chest", title: "Netherite Chest", cols: 18, rows: 6 },
 ];
 

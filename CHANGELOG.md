@@ -5,6 +5,13 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.3.0 - 2026-11-05
+
+### Changed
+- The top chest is now the **Obsidian Chest** (108 slots, blast-proof), crafted from a Diamond
+  Chest ringed with 8 obsidian. It replaces the Netherite Chest, which is no longer crafted or in
+  the creative tab; Netherite Chests already placed keep working.
+
 ## 0.2.1 - 2026-11-05
 
 ### Added

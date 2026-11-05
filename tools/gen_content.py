@@ -52,10 +52,14 @@ TIERS = {
     "diamond_chest": ("Diamond Chest", (92, 222, 214), 15, 6, 6.0,
                       ["LDL", "DCD", "LDL"],
                       {"L": "minecraft:glass", "D": "minecraft:diamond", "C": f"{ID}:gold_chest"}),
-    "netherite_chest": ("Netherite Chest", (78, 70, 74), 18, 6, 1200.0,
-                        ["ONO", "OCO", "OOO"],
-                        {"O": "minecraft:obsidian", "N": "minecraft:netherite_ingot", "C": f"{ID}:diamond_chest"}),
+    "obsidian_chest": ("Obsidian Chest", (52, 38, 76), 18, 6, 1200.0,
+                       ["OOO", "OCO", "OOO"],
+                       {"O": "minecraft:obsidian", "C": f"{ID}:diamond_chest"}),
+    # Replaced by the Obsidian Chest in 0.3.0: still a block, so chests already placed keep
+    # working, but no longer crafted or in the creative tab.
+    "netherite_chest": ("Netherite Chest", (78, 70, 74), 18, 6, 1200.0, None, None),
 }
+LEGACY = {"netherite_chest"}
 WOOD = (150, 108, 62)
 
 
@@ -312,6 +316,8 @@ def recipe(name, pattern, key, unlock):
 
 
 for name, (_, _, _, _, _, pattern, key) in TIERS.items():
+    if name in LEGACY:
+        continue
     recipe(name, pattern, key, key["C"])
 recipe(BARREL, ["PIP", "IBI", "PIP"],
        {"P": "#minecraft:planks", "I": "minecraft:iron_ingot", "B": "minecraft:barrel"}, "minecraft:barrel")
@@ -323,5 +329,5 @@ write(f"assets/{ID}/lang/en_us.json", lang)
 write(f"data/{ID}/horizon/creative_tab/chests.json", {
     "title": "Horizon Chests",
     "icon": f"{ID}:diamond_chest",
-    "items": [f"{ID}:{n}" for n in TIERS] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"],
+    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"],
 })
