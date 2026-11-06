@@ -77,12 +77,21 @@ pub(crate) fn place_block(host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) 
     }
 }
 
-pub(crate) fn tooltip(event: &mut TooltipEvent<'_>) {
+/// "Empty", or what it holds and how full it is: each slot counts by how full its stack is.
+pub(crate) fn tooltip(host: &dyn Host, event: &mut TooltipEvent<'_>, slots: usize) {
     let Some(items) = carried(event.stack) else {
+        event.lines.push((Text::literal("Empty"), 0xFFAA_AAAA));
         return;
     };
     let (stacks, count) = items.iter().flatten().fold((0, 0), |(n, c), s| (n + 1, c + s.count));
+    let filled: f32 = items
+        .iter()
+        .flatten()
+        .map(|s| s.count as f32 / host.max_stack_size(&s.item).unwrap_or(64).max(1) as f32)
+        .sum();
+    let percent = (filled * 100.0 / slots.max(1) as f32).ceil().clamp(1.0, 100.0) as u32;
     event.lines.push((Text::literal(format!("{count} items in {stacks} stacks")), 0xFFAA_AAAA));
+    event.lines.push((Text::literal(format!("{percent}% full")), 0xFFAA_AAAA));
 }
 
 /// The items a chest item carries, from its custom data.

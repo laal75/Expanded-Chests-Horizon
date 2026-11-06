@@ -237,10 +237,10 @@ impl Hooks for HorizonChests {
         }
     }
 
-    fn tooltip(&self, _host: &dyn Host, event: &mut TooltipEvent<'_>) {
-        barrel::tooltip(event);
-        if tier(&event.stack.item).is_some() {
-            keep::tooltip(event);
+    fn tooltip(&self, host: &dyn Host, event: &mut TooltipEvent<'_>) {
+        barrel::tooltip(host, event);
+        if let Some(t) = tier(&event.stack.item) {
+            keep::tooltip(host, event, t.slots());
         }
     }
 }

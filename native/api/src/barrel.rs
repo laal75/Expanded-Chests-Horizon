@@ -231,19 +231,36 @@ pub(crate) fn place_block(host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) 
     }
 }
 
-pub(crate) fn tooltip(event: &mut TooltipEvent<'_>) {
+/// The item it holds, how many stacks and how full, or "Empty"; and its upgrades.
+pub(crate) fn tooltip(host: &dyn Host, event: &mut TooltipEvent<'_>) {
     if &*event.stack.item != BARREL {
         return;
     }
-    if let Some((item, count, upgrades)) = carried(event.stack) {
-        if !item.is_empty() {
-            let name = item.rsplit(':').next().unwrap_or(&item).replace('_', " ");
-            event.lines.push((Text::literal(format!("{count} {name}")), 0xFFAA_AAAA));
-        }
-        if upgrades > 0 {
-            let s = if upgrades == 1 { "" } else { "s" };
-            event.lines.push((Text::literal(format!("{upgrades} Storage Upgrade{s}")), 0xFFAA_AAAA));
-        }
+    let (item, count, upgrades) = carried(event.stack).unwrap_or_default();
+    if item.is_empty() {
+        event.lines.push((Text::literal("Empty"), 0xFFAA_AAAA));
+    } else {
+        let name: Vec<String> = item
+            .rsplit(':')
+            .next()
+            .unwrap_or(&item)
+            .split('_')
+            .map(|word| {
+                let mut letters = word.chars();
+                letters.next().map_or(String::new(), |c| c.to_uppercase().chain(letters).collect())
+            })
+            .collect();
+        let stack_size = host.max_stack_size(&item).unwrap_or(64).max(1);
+        let stacks = count as f32 / stack_size as f32;
+        let room = (BASE_STACKS << upgrades.min(MAX_UPGRADES)) as f32;
+        let percent = (stacks * 100.0 / room).ceil().clamp(1.0, 100.0) as u32;
+        event.lines.push((Text::literal(name.join(" ")), 0xFFAA_AAAA));
+        event.lines.push((Text::literal(format!("{count} items, {stacks:.1} stacks")), 0xFFAA_AAAA));
+        event.lines.push((Text::literal(format!("{percent}% full")), 0xFFAA_AAAA));
+    }
+    if upgrades > 0 {
+        let s = if upgrades == 1 { "" } else { "s" };
+        event.lines.push((Text::literal(format!("{upgrades} Storage Upgrade{s}")), 0xFFAA_AAAA));
     }
 }
 
