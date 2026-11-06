@@ -31,8 +31,8 @@ becomes that tier where it stands, keeping everything inside. The upgrade is use
 
 ### Storage Barrel
 
-Holds one kind of item: 32 stacks, doubled by each **Storage Upgrade**, up to 1,024 stacks with
-five. Hoppers and tubes fill and empty it like a chest. Break it and it drops as a barrel that still
+Holds one kind of item: 32 stacks, doubled by each **Storage Upgrade**, up to 32,768 stacks with
+ten. Hoppers and tubes fill and empty it like a chest. Break it and it drops as a barrel that still
 holds its items and its Storage Upgrades; place it again to get them back.
 
 | Item | Crafted from |
@@ -59,8 +59,8 @@ The ready-made packs are in the [`dist`](dist) folder, so there is nothing to cl
 
 | File | What it is | Where it goes in the game folder |
 |---|---|---|
-| [`horizon_chests-0.3.1.hmod`](dist/horizon_chests-0.3.1.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
-| [`horizon_chests_core-0.3.1.hnmod`](dist/horizon_chests_core-0.3.1.hnmod) | The code | `horizon-native-mods/` |
+| [`horizon_chests-0.3.2.hmod`](dist/horizon_chests-0.3.2.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
+| [`horizon_chests_core-0.3.2.hnmod`](dist/horizon_chests_core-0.3.2.hnmod) | The code | `horizon-native-mods/` |
 
 1. Download both files. The game folder of the main Horizon instance is `%APPDATA%\horizon` on
    Windows; `horizon-launcher instance list` shows your instances.

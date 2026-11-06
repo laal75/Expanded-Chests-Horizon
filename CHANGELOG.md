@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.3.2 - 2026-11-06
+
+- Storage Barrels take 10 Storage Upgrades, up from 5: up to 32,768 stacks.
+
 ## 0.3.1 - 2026-11-05
 
 ### Added

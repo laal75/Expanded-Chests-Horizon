@@ -1,6 +1,6 @@
 //! The storage barrel: one kind of item, kept as a count in the block entity rather than in
-//! slots (a slot holds 99 at most). It holds 32 stacks, doubled by each Storage Upgrade, to 1024
-//! stacks with five. Three slots face the world: what goes into the input is added to the count,
+//! slots (a slot holds 99 at most). It holds 32 stacks, doubled by each Storage Upgrade, to 32768
+//! stacks with ten. Three slots face the world: what goes into the input is added to the count,
 //! and the output is kept topped up from it, so hoppers and tubes fill and empty it as they do a
 //! chest. Broken, it drops as a barrel that still holds its count (loot_drops), and placing that
 //! barrel gives the count back (place_block), with its Storage Upgrades (keep_upgrades.rs takes
@@ -23,13 +23,13 @@ const UPGRADES: usize = 2;
 const SLOTS: usize = 3;
 
 const BASE_STACKS: u32 = 32;
-const MAX_UPGRADES: u32 = 5;
+const MAX_UPGRADES: u32 = 10;
 
-// Data slots (16-bit on the wire): the count in two halves, its room in stacks, and the item's
-// stack size.
+// Data slots (16-bit on the wire): the count in two halves, its upgrades (32768 stacks wouldn't fit
+// a slot, so the screen works out its room from them), and the item's stack size.
 const D_COUNT_LOW: usize = 0;
 const D_COUNT_HIGH: usize = 1;
-const D_STACKS: usize = 2;
+const D_UPGRADES: usize = 2;
 const D_STACK_SIZE: usize = 3;
 const DATA_SLOTS: usize = 4;
 
@@ -157,12 +157,12 @@ pub(crate) fn tick(host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
     be.data.resize(DATA_SLOTS, 0);
     be.data[D_COUNT_LOW] = (total & 0x7FFF) as i32;
     be.data[D_COUNT_HIGH] = (total >> 15) as i32;
-    be.data[D_STACKS] = stacks as i32;
+    be.data[D_UPGRADES] = upgrades as i32;
     be.data[D_STACK_SIZE] = stack_size as i32;
     contents().lock().unwrap().insert((dimension, pos), (item, count, upgrades));
 }
 
-/// The input takes plain items, the upgrade slot Storage Upgrades (five at most).
+/// The input takes plain items, the upgrade slot Storage Upgrades (ten at most).
 pub(crate) fn slot_rule(event: &mut MenuSlotRulesEvent<'_>) {
     match event.slot {
         INPUT => event.may_place = plain(event.stack) && &*event.stack.item != UPGRADE,
@@ -288,7 +288,7 @@ pub(crate) fn draw(host: &dyn Host, event: &mut ScreenDrawEvent<'_>) {
     // An arrow from the input to the output.
     host.fill(event.batch, [x + 66.0, y + 39.0, 40.0, 8.0], 0xFF8B_8B8B);
     let total = get(D_COUNT_LOW) | (get(D_COUNT_HIGH) << 15);
-    let stacks = get(D_STACKS).max(1);
+    let stacks = BASE_STACKS << get(D_UPGRADES).min(MAX_UPGRADES);
     let capacity = stacks * get(D_STACK_SIZE).max(1);
     text(event.batch, &format!("{total} / {capacity}"), [x + 8.0, y + 20.0]);
     // A fill bar under the slots.

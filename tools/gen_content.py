@@ -170,7 +170,7 @@ write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"{ID}:{n}"
 write("data/c/tags/block/chests.json", {"values": [f"{ID}:{n}" for n in TIERS]})
 
 # ---- the storage barrel ---------------------------------------------------------------------
-# One item, kept as a count: 32 stacks, doubled by each Storage Upgrade up to 1024 with five.
+# One item, kept as a count: 32 stacks, doubled by each Storage Upgrade up to 32768 with ten.
 # native/api/src/barrel.rs has the slots: 0 takes in, 1 gives out, 2 holds the upgrades.
 BARREL = "storage_barrel"
 OAK = (164, 124, 74)

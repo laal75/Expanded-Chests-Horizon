@@ -1,5 +1,5 @@
 //! Expanded Chests: four tiers of chest bigger than vanilla's, and a storage barrel that holds
-//! up to 1024 stacks of one item (barrel.rs). The blocks, menus and recipes come from the content
+//! up to 32768 stacks of one item (barrel.rs). The blocks, menus and recipes come from the content
 //! mod; this crate gives them block entities, slots and screens. Hoppers, shift-clicks and
 //! breaking (which spills the items) work as they do for any container.
 use horizon_client::mod_api::{
