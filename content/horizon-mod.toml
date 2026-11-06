@@ -1,6 +1,6 @@
 id = "horizon_chests"
 name = "Expanded Chests"
-version = "0.3.3"
+version = "0.4.0"
 description = "Bigger chests in four tiers. Content half; the code is horizon_chests_core."
 authors = []
 api = "0.2"

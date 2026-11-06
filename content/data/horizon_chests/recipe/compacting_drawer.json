@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PBP"
+  ],
+  "key": {
+    "P": "minecraft:piston",
+    "B": "horizon_chests:storage_barrel"
+  },
+  "result": {
+    "id": "horizon_chests:compacting_drawer"
+  }
+}

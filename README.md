@@ -29,6 +29,14 @@ becomes that tier where it stands, keeping everything inside. The upgrade is use
 | Diamond Chest Upgrade | a Gold Chest into a Diamond Chest | 4 diamonds and 4 glass around a gold ingot |
 | Obsidian Chest Upgrade | a Diamond Chest into an Obsidian Chest | 8 obsidian around a diamond |
 
+### Compacting Drawer
+
+Holds one material and offers it in all its forms at once: put in nuggets, ingots or blocks and take
+any of them. Holds 32 stacks of the largest form, doubled by each **Storage Upgrade**. Made from a
+Storage Barrel between two pistons. Works with iron, gold, copper, netherite, diamond, emerald, lapis,
+redstone, coal, raw metals, wheat, slime, bone meal, dried kelp, quartz, glowstone, amethyst, clay, snow
+and honeycomb.
+
 ### Storage Barrel
 
 Holds one kind of item: 32 stacks, doubled by each **Storage Upgrade**, up to 32,768 stacks with
@@ -59,8 +67,8 @@ The ready-made packs are in the [`dist`](dist) folder, so there is nothing to cl
 
 | File | What it is | Where it goes in the game folder |
 |---|---|---|
-| [`horizon_chests-0.3.3.hmod`](dist/horizon_chests-0.3.3.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
-| [`horizon_chests_core-0.3.3.hnmod`](dist/horizon_chests_core-0.3.3.hnmod) | The code | `horizon-native-mods/` |
+| [`horizon_chests-0.4.0.hmod`](dist/horizon_chests-0.4.0.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
+| [`horizon_chests_core-0.4.0.hnmod`](dist/horizon_chests_core-0.4.0.hnmod) | The code | `horizon-native-mods/` |
 
 1. Download both files. The game folder of the main Horizon instance is `%APPDATA%\horizon` on
    Windows; `horizon-launcher instance list` shows your instances.

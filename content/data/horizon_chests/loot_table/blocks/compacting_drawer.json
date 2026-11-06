@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "horizon_chests:compacting_drawer"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "horizon_chests:blocks/compacting_drawer"
+}

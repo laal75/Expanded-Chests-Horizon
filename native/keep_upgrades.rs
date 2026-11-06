@@ -10,12 +10,17 @@ fn horizon_chests_core_keep_upgrades(game: &mut crate::game::Game<'_>, pos: [i32
         let host: &dyn horizon_client::mod_api::Host = &*game;
         host.block(pos)
     };
-    if block != "horizon_chests:storage_barrel" {
-        return;
-    }
+    // A Compacting Drawer's outputs only show its count, which goes with the drop too.
+    let cleared: &[usize] = match block.as_str() {
+        "horizon_chests:storage_barrel" => &[2],
+        "horizon_chests:compacting_drawer" => &[1, 2, 3, 4],
+        _ => return,
+    };
     game.native_with_mod_block_entity(pos, |be| {
-        if let Some(slot) = be.items.get_mut(2) {
-            *slot = None;
+        for &i in cleared {
+            if let Some(slot) = be.items.get_mut(i) {
+                *slot = None;
+            }
         }
     });
 }

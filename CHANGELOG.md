@@ -5,6 +5,11 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.4.0 - 2026-11-06
+
+- **Compacting Drawer**: one material offered in all its forms, so nuggets, ingots and blocks convert
+  freely. Recipe: a Storage Barrel between two pistons.
+
 ## 0.3.3 - 2026-11-06
 
 - Storage Barrels' item tooltip names the item, its stacks and how full it is, or says Empty.

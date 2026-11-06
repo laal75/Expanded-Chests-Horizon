@@ -282,8 +282,51 @@ write(f"data/{ID}/loot_table/blocks/{BARREL}.json", {
 })
 lang[f"block.{ID}.{BARREL}"] = "Storage Barrel"
 lang[f"container.{ID}.{BARREL}"] = "Storage Barrel"
-write("data/minecraft/tags/block/mineable/axe.json", {"values": [f"{ID}:{BARREL}"]})
+write("data/minecraft/tags/block/mineable/axe.json", {"values": [f"{ID}:{BARREL}", f"{ID}:compacting_drawer"]})
 write("data/c/tags/block/barrels.json", {"values": [f"{ID}:{BARREL}"]})
+
+# ---- the compacting drawer --------------------------------------------------------------------
+# One material in all its forms (native/api/src/drawer.rs): 0 takes in, 1 to 3 give out, 4 upgrades.
+DRAWER = "compacting_drawer"
+
+
+def drawer_front(seed):
+    px = barrel_side(seed)
+    for left in (2, 6, 10):
+        for y in range(5, 11):
+            for x in range(left, left + 4):
+                px[y][x] = shade(STEEL, 0.55 if x in (left, left + 3) or y in (5, 10) else 0.95)
+    return px
+
+
+png(f"assets/{ID}/textures/block/{DRAWER}_front.png", drawer_front(53))
+write(f"data/{ID}/horizon/block/{DRAWER}.json", {
+    "template": "minecraft:furnace",
+    "properties": {"hardness": 2.5, "explosion_resistance": 2.5, "requires_tool": False,
+                   "sounds": "minecraft:barrel"},
+})
+write(f"data/{ID}/horizon/menu/{DRAWER}.json", {"slots": 5, "data_slots": 4, "results": [1, 2, 3]})
+write(f"assets/{ID}/models/block/{DRAWER}.json", {
+    "parent": "minecraft:block/orientable",
+    "textures": {"front": f"{ID}:block/{DRAWER}_front", "side": f"{ID}:block/{BARREL}_side",
+                 "top": f"{ID}:block/{BARREL}_top"},
+})
+variants = {}
+for facing, rot in FACINGS.items():
+    for lit in ("false", "true"):
+        v = {"model": f"{ID}:block/{DRAWER}"}
+        if rot:
+            v["y"] = rot
+        variants[f"facing={facing},lit={lit}"] = v
+write(f"assets/{ID}/blockstates/{DRAWER}.json", {"variants": variants})
+write(f"assets/{ID}/items/{DRAWER}.json", {"model": {"type": "minecraft:model", "model": f"{ID}:block/{DRAWER}"}})
+write(f"data/{ID}/loot_table/blocks/{DRAWER}.json", {
+    "type": "minecraft:block",
+    "pools": [{"entries": [{"type": "minecraft:item", "name": f"{ID}:{DRAWER}"}], "rolls": 1}],
+    "random_sequence": f"{ID}:blocks/{DRAWER}",
+})
+lang[f"block.{ID}.{DRAWER}"] = "Compacting Drawer"
+lang[f"container.{ID}.{DRAWER}"] = "Compacting Drawer"
 
 write(f"data/{ID}/horizon/item/storage_upgrade.json", {"template": "minecraft:sugar"})
 write(f"assets/{ID}/models/item/storage_upgrade.json",
@@ -362,6 +405,7 @@ for name, (_, _, _, _, _, pattern, key) in TIERS.items():
     recipe(name, pattern, key, key["C"])
 recipe(BARREL, ["PIP", "IBI", "PIP"],
        {"P": "#minecraft:planks", "I": "minecraft:iron_ingot", "B": "minecraft:barrel"}, "minecraft:barrel")
+recipe(DRAWER, ["PBP"], {"P": "minecraft:piston", "B": f"{ID}:{BARREL}"}, f"{ID}:{BARREL}")
 recipe("storage_upgrade", ["IGI", "GCG", "IGI"],
        {"I": "minecraft:iron_ingot", "G": "minecraft:gold_ingot", "C": "minecraft:chest"}, f"{ID}:{BARREL}")
 for name, (_, _, pattern, key) in CHEST_UPGRADES.items():
@@ -372,6 +416,6 @@ write(f"assets/{ID}/lang/en_us.json", lang)
 write(f"data/{ID}/horizon/creative_tab/chests.json", {
     "title": "Expanded Chests",
     "icon": f"{ID}:diamond_chest",
-    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:storage_upgrade"]
+    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:{DRAWER}", f"{ID}:storage_upgrade"]
              + [f"{ID}:{n}" for n in CHEST_UPGRADES],
 })

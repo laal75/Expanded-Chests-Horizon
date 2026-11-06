@@ -10,6 +10,7 @@ use horizon_client::mod_api::{
 };
 
 mod barrel;
+mod drawer;
 mod keep;
 mod sort;
 
@@ -88,13 +89,13 @@ impl Hooks for HorizonChests {
         _host: &mut dyn Host,
         event: &mut BlockEntityEvent<'_>,
     ) -> Option<(String, Compound)> {
-        (tier(event.block).is_some() || event.block == barrel::BARREL)
+        (tier(event.block).is_some() || event.block == barrel::BARREL || event.block == drawer::DRAWER)
             .then(|| (event.block.to_owned(), Compound::new()))
     }
 
     fn block_entity_ticks(&self, _host: &dyn Host, event: &mut BlockEntityTicksEvent<'_>) {
         // Chests sit still; the barrel moves its count in and out of its slots.
-        if event.block == barrel::BARREL {
+        if event.block == barrel::BARREL || event.block == drawer::DRAWER {
             event.ticks = true;
         }
     }
@@ -102,6 +103,8 @@ impl Hooks for HorizonChests {
     fn block_entity_tick(&self, host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
         if event.entity.id == barrel::BARREL {
             barrel::tick(host, event);
+        } else if event.entity.id == drawer::DRAWER {
+            drawer::tick(host, event);
         }
     }
 
@@ -112,6 +115,9 @@ impl Hooks for HorizonChests {
     ) -> Option<ModContainer> {
         if event.block == barrel::BARREL {
             return Some(barrel::container());
+        }
+        if event.block == drawer::DRAWER {
+            return Some(drawer::container());
         }
         // Every side reaches every slot, both ways, as a chest's.
         let t = tier(event.block)?;
@@ -127,10 +133,22 @@ impl Hooks for HorizonChests {
 
     fn block_entity_update_tag(&self, event: &mut BlockEntityUpdateTagEvent<'_>) -> Option<Compound> {
         // Clients only draw the block, so they need nothing of the entity.
-        (tier(&event.entity.id).is_some() || event.entity.id == barrel::BARREL).then(Compound::new)
+        (tier(&event.entity.id).is_some() || event.entity.id == barrel::BARREL || event.entity.id == drawer::DRAWER)
+            .then(Compound::new)
     }
 
     fn screen(&self, _host: &dyn Host, event: &mut ScreenEvent<'_>) -> Option<NativeScreen> {
+        if event.block == drawer::DRAWER {
+            return Some(NativeScreen {
+                width: 176.0,
+                height: 166.0,
+                slots: drawer::screen_slots(),
+                inventory_y: 84.0,
+                inventory_x: 8.0,
+                own_labels: true,
+                ..NativeScreen::default()
+            });
+        }
         if event.block == barrel::BARREL {
             return Some(NativeScreen {
                 width: 176.0,
@@ -163,6 +181,10 @@ impl Hooks for HorizonChests {
     fn screen_draw(&self, host: &dyn Host, event: &mut ScreenDrawEvent<'_>) {
         if event.block == barrel::BARREL {
             barrel::draw(host, event);
+            return;
+        }
+        if event.block == drawer::DRAWER {
+            drawer::draw(host, event);
             return;
         }
         let Some(t) = tier(event.block) else {
@@ -206,10 +228,15 @@ impl Hooks for HorizonChests {
     fn menu_slot_rules(&self, event: &mut MenuSlotRulesEvent<'_>) {
         if event.menu == barrel::BARREL {
             barrel::slot_rule(event);
+        } else if event.menu == drawer::DRAWER {
+            drawer::slot_rule(event);
         }
     }
 
     fn use_item_on(&self, host: &mut dyn Host, event: &mut UseItemOnEvent<'_>) -> Flow {
+        if drawer::use_item_on(host, event) == Flow::Cancel {
+            return Flow::Cancel;
+        }
         barrel::use_item_on(host, event)
     }
 
@@ -221,24 +248,30 @@ impl Hooks for HorizonChests {
         } else if block == barrel::BARREL {
             // Its count rides on the drop already; this keeps the input and output slots too.
             keep::destroy_block(host, event.pos, 2);
+        } else if block == drawer::DRAWER {
+            // Its count rides on the drop already; only the input has real items to keep.
+            keep::destroy_block(host, event.pos, 1);
         }
         Flow::Continue
     }
 
     fn loot_drops(&self, _host: &mut dyn Host, event: &mut LootDropsEvent<'_>) {
         barrel::loot_drops(event);
-        keep::loot_drops(event, |item| tier(item).is_some() || item == barrel::BARREL);
+        drawer::loot_drops(event);
+        keep::loot_drops(event, |item| tier(item).is_some() || item == barrel::BARREL || item == drawer::DRAWER);
     }
 
     fn place_block(&self, host: &mut dyn Host, event: &mut PlaceBlockEvent<'_>) {
         barrel::place_block(host, event);
-        if tier(&event.stack.item).is_some() || &*event.stack.item == barrel::BARREL {
+        drawer::place_block(host, event);
+        if tier(&event.stack.item).is_some() || &*event.stack.item == barrel::BARREL || &*event.stack.item == drawer::DRAWER {
             keep::place_block(host, event);
         }
     }
 
     fn tooltip(&self, host: &dyn Host, event: &mut TooltipEvent<'_>) {
         barrel::tooltip(host, event);
+        drawer::tooltip(event);
         if let Some(t) = tier(&event.stack.item) {
             keep::tooltip(host, event, t.slots());
         }

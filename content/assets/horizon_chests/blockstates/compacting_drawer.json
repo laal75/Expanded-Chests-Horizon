@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "horizon_chests:block/compacting_drawer"
+    },
+    "facing=north,lit=true": {
+      "model": "horizon_chests:block/compacting_drawer"
+    },
+    "facing=east,lit=false": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 90
+    },
+    "facing=east,lit=true": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 90
+    },
+    "facing=south,lit=false": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 180
+    },
+    "facing=south,lit=true": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 270
+    },
+    "facing=west,lit=true": {
+      "model": "horizon_chests:block/compacting_drawer",
+      "y": 270
+    }
+  }
+}
