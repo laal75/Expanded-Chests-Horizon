@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.4.1 - 2026-11-07
+
+- The Storage Barrel's and Compacting Drawer's upgrade slots sit higher, clear of the inventory's sort button.
+
 ## 0.4.0 - 2026-11-06
 
 - **Compacting Drawer**: one material offered in all its forms, so nuggets, ingots and blocks convert

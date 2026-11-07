@@ -49,7 +49,7 @@ pub(crate) fn container() -> ModContainer {
 }
 
 pub(crate) fn screen_slots() -> Vec<Option<[f32; 2]>> {
-    vec![Some([44.0, 35.0]), Some([116.0, 35.0]), Some([152.0, 62.0])]
+    vec![Some([44.0, 35.0]), Some([116.0, 35.0]), Some([152.0, 52.0])]
 }
 
 /// Each barrel's item and count, by level and position, as of its last tick: what a broken one

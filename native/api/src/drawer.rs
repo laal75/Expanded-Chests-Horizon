@@ -105,7 +105,7 @@ pub(crate) fn screen_slots() -> Vec<Option<[f32; 2]>> {
         Some([80.0, 35.0]),
         Some([98.0, 35.0]),
         Some([116.0, 35.0]),
-        Some([152.0, 62.0]),
+        Some([152.0, 52.0]),
     ]
 }
 
