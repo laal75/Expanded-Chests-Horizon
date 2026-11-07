@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.5.0 - 2026-11-07
+
+- A full chest hands the stack in its last slot to an Expanded Chest touching it, on any side, every 8 ticks, so a machine or tube filling it carries on into the next. It never hands straight back to the chest that just filled it.
+
 ## 0.4.1 - 2026-11-07
 
 - The Storage Barrel's and Compacting Drawer's upgrade slots sit higher, clear of the inventory's sort button.

@@ -67,8 +67,8 @@ The ready-made packs are in the [`dist`](dist) folder, so there is nothing to cl
 
 | File | What it is | Where it goes in the game folder |
 |---|---|---|
-| [`horizon_chests-0.4.1.hmod`](dist/horizon_chests-0.4.1.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
-| [`horizon_chests_core-0.4.1.hnmod`](dist/horizon_chests_core-0.4.1.hnmod) | The code | `horizon-native-mods/` |
+| [`horizon_chests-0.5.0.hmod`](dist/horizon_chests-0.5.0.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
+| [`horizon_chests_core-0.5.0.hnmod`](dist/horizon_chests_core-0.5.0.hnmod) | The code | `horizon-native-mods/` |
 
 1. Download both files. The game folder of the main Horizon instance is `%APPDATA%\horizon` on
    Windows; `horizon-launcher instance list` shows your instances.

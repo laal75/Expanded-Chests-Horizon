@@ -12,6 +12,7 @@ use horizon_client::mod_api::{
 mod barrel;
 mod drawer;
 mod keep;
+mod overflow;
 mod sort;
 
 pub fn hooks() -> Box<dyn Hooks> {
@@ -94,8 +95,9 @@ impl Hooks for HorizonChests {
     }
 
     fn block_entity_ticks(&self, _host: &dyn Host, event: &mut BlockEntityTicksEvent<'_>) {
-        // Chests sit still; the barrel moves its count in and out of its slots.
-        if event.block == barrel::BARREL || event.block == drawer::DRAWER {
+        // The barrel moves its count in and out of its slots; a full chest hands on to the next
+        // (overflow.rs).
+        if event.block == barrel::BARREL || event.block == drawer::DRAWER || tier(event.block).is_some() {
             event.ticks = true;
         }
     }
@@ -105,6 +107,8 @@ impl Hooks for HorizonChests {
             barrel::tick(host, event);
         } else if event.entity.id == drawer::DRAWER {
             drawer::tick(host, event);
+        } else if let Some(t) = tier(&event.entity.id) {
+            overflow::tick(host, event, t.slots(), |b| tier(b).is_some());
         }
     }
 
