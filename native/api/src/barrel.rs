@@ -17,7 +17,7 @@ use horizon_client::mod_api::{
 pub(crate) const BARREL: &str = "horizon_chests:storage_barrel";
 const UPGRADE: &str = "horizon_chests:storage_upgrade";
 
-const INPUT: usize = 0;
+pub(crate) const INPUT: usize = 0;
 const OUTPUT: usize = 1;
 const UPGRADES: usize = 2;
 const SLOTS: usize = 3;
@@ -77,7 +77,7 @@ fn placed() -> &'static Mutex<HashMap<(&'static str, [i32; 3]), (String, u32, u3
 }
 
 /// Only plain items go in: the count can't keep a stack's name, damage or enchantments.
-fn plain(stack: &ItemStack) -> bool {
+pub(crate) fn plain(stack: &ItemStack) -> bool {
     stack.damage == 0 && stack.data().is_none_or(|d| d.is_empty())
 }
 

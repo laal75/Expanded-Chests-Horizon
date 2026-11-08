@@ -5,6 +5,11 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.6.0 - 2026-11-08
+
+- A full chest hands on to Storage Barrels too: a barrel touching it that holds an item the chest has takes a stack of it, before the last slot goes on to the next chest. A barrel that holds nothing takes nothing.
+- A full Storage Barrel hands what waits in its input to a Storage Barrel touching it that holds the same item, so a row of them fills one after another. An empty barrel neither takes nor passes anything on.
+
 ## 0.5.0 - 2026-11-07
 
 - A full chest hands the stack in its last slot to an Expanded Chest touching it, on any side, every 8 ticks, so a machine or tube filling it carries on into the next. It never hands straight back to the chest that just filled it.

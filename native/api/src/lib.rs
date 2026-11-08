@@ -105,6 +105,7 @@ impl Hooks for HorizonChests {
     fn block_entity_tick(&self, host: &mut dyn Host, event: &mut BlockEntityTickEvent<'_>) {
         if event.entity.id == barrel::BARREL {
             barrel::tick(host, event);
+            overflow::barrel_tick(host, event);
         } else if event.entity.id == drawer::DRAWER {
             drawer::tick(host, event);
         } else if let Some(t) = tier(&event.entity.id) {
