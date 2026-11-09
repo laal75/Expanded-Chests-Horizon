@@ -5,6 +5,14 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.7.0 - 2026-11-09
+
+## 0.7.0 - 2026-11-09
+
+- **Large Chest** and **Large Barrel**: multiblock storage. Build a hollow box with 3 to 15 blocks of air inside on each side, the same metal block on all 8 corners (iron ×1, gold ×2, diamond ×4, obsidian ×8), planks or logs on the edges and sides, and a Large Chest Port or Large Barrel Port in a side (up to one per side).
+- A Large Chest holds 27 slots per block of air inside, times the metal; a Large Barrel holds one item, 64 stacks per block of air inside, times the metal. What a box holds stays with the box: break a port or a wall and rebuild it to get it all back.
+- Each port takes items in through 9 input slots and offers what the box holds in its other slots, to hoppers, tubes and players alike. Plain items only. A box built wrong says what is wrong and where, counted from the port.
+
 ## 0.6.0 - 2026-11-08
 
 - A full chest hands on to Storage Barrels too: a barrel touching it that holds an item the chest has takes a stack of it, before the last slot goes on to the next chest. A barrel that holds nothing takes nothing.

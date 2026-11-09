@@ -1,9 +1,10 @@
 [package]
 name = "mod-horizon-chests-core"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2024"
 
 [dependencies]
 # The launcher points this at the Horizon source it builds the game from. Any other
 # dependency must be a crate and version in Horizon's Cargo.lock.
 horizon-client = { git = "https://github.com/horizon-rust/horizon", rev = "67dad0d1a5adca139b426c8114e74a33b376ba64" }
+serde_json = "1.0.151"

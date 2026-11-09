@@ -1,6 +1,8 @@
 {
   "values": [
     "horizon_chests:storage_barrel",
-    "horizon_chests:compacting_drawer"
+    "horizon_chests:compacting_drawer",
+    "horizon_chests:large_chest",
+    "horizon_chests:large_barrel"
   ]
 }

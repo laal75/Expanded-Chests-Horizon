@@ -167,7 +167,7 @@ for name, (title, _, cols, rows, blast, _, _) in TIERS.items():
 write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"{ID}:{n}" for n in TIERS]})
 # The common chests tag, which other mods read to treat these as chests: Horizon Machines'
 # item tubes connect to what is in it.
-write("data/c/tags/block/chests.json", {"values": [f"{ID}:{n}" for n in TIERS]})
+write("data/c/tags/block/chests.json", {"values": [f"{ID}:{n}" for n in TIERS] + [f"{ID}:large_chest"]})
 
 # ---- the storage barrel ---------------------------------------------------------------------
 # One item, kept as a count: 32 stacks, doubled by each Storage Upgrade up to 32768 with ten.
@@ -282,8 +282,9 @@ write(f"data/{ID}/loot_table/blocks/{BARREL}.json", {
 })
 lang[f"block.{ID}.{BARREL}"] = "Storage Barrel"
 lang[f"container.{ID}.{BARREL}"] = "Storage Barrel"
-write("data/minecraft/tags/block/mineable/axe.json", {"values": [f"{ID}:{BARREL}", f"{ID}:compacting_drawer"]})
-write("data/c/tags/block/barrels.json", {"values": [f"{ID}:{BARREL}"]})
+write("data/minecraft/tags/block/mineable/axe.json",
+      {"values": [f"{ID}:{BARREL}", f"{ID}:compacting_drawer", f"{ID}:large_chest", f"{ID}:large_barrel"]})
+write("data/c/tags/block/barrels.json", {"values": [f"{ID}:{BARREL}", f"{ID}:large_barrel"]})
 
 # ---- the compacting drawer --------------------------------------------------------------------
 # One material in all its forms (native/api/src/drawer.rs): 0 takes in, 1 to 3 give out, 4 upgrades.
@@ -335,6 +336,75 @@ write(f"assets/{ID}/items/storage_upgrade.json",
       {"model": {"type": "minecraft:model", "model": f"{ID}:item/storage_upgrade"}})
 lang[f"item.{ID}.storage_upgrade"] = "Storage Upgrade"
 
+
+# ---- the Large Chest and Large Barrel ports -------------------------------------------------
+# A hollow box built in the world (native/api/src/large.rs): planks or logs, the same metal block
+# on all eight corners, and up to one port on each side. Slots 0-8 take in; the rest are view slots
+# (a stack of each kind the box holds): 540 on a chest port, 9 on a barrel port.
+LARGE = {"large_chest": ("Large Chest Port", 9 + 540), "large_barrel": ("Large Barrel Port", 9 + 9)}
+
+
+def large_chest_port(seed):
+    rng = random.Random(seed)
+    px = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            d = max(abs(x - 7.5), abs(y - 7.5))
+            if x in (0, 15) or y in (0, 15):
+                c = shade(STEEL, 0.7)
+            elif d >= 5.5:
+                k = 0.55 if (y - 1) % 4 == 3 else 0.9 + rng.random() * 0.15
+                c = shade(WOOD, k)
+            elif d >= 4.5:
+                c = shade(STEEL, 1.1)
+            else:
+                # The opening the items go in by, darker toward its middle.
+                c = shade((40, 30, 22), 0.8 + d * 0.08)
+            row.append(c)
+        px.append(row)
+    # A little latch at the bottom of the ring, as the chests have.
+    for y in range(11, 14):
+        for x in range(7, 9):
+            px[y][x] = shade(STEEL, 1.3 if y == 12 else 0.6)
+    return px
+
+
+def large_barrel_port(seed):
+    px = barrel_front(seed)
+    # A funnel ring inside the label frame.
+    for y in range(16):
+        for x in range(16):
+            d = max(abs(x - 7.5), abs(y - 7.5))
+            if 2.5 <= d < 3.5:
+                px[y][x] = shade(STEEL, 1.15)
+            elif d < 2.5:
+                px[y][x] = shade((30, 22, 16), 0.9 + d * 0.1)
+    return px
+
+
+png(f"assets/{ID}/textures/block/large_chest.png", large_chest_port(60))
+png(f"assets/{ID}/textures/block/large_barrel.png", large_barrel_port(61))
+for name, (title, slots) in LARGE.items():
+    write(f"data/{ID}/horizon/block/{name}.json", {
+        "template": "minecraft:furnace",
+        "properties": {"hardness": 2.5, "explosion_resistance": 6.0, "requires_tool": False,
+                       "sounds": "minecraft:wood"},
+    })
+    write(f"data/{ID}/horizon/menu/{name}.json",
+          {"slots": slots, "data_slots": 16, "results": list(range(9, slots))})
+    write(f"assets/{ID}/models/block/{name}.json",
+          {"parent": "minecraft:block/cube_all", "textures": {"all": f"{ID}:block/{name}"}})
+    write(f"assets/{ID}/blockstates/{name}.json", {"variants": {
+        f"facing={f},lit={l}": {"model": f"{ID}:block/{name}"} for f in FACINGS for l in ("false", "true")}})
+    write(f"assets/{ID}/items/{name}.json", {"model": {"type": "minecraft:model", "model": f"{ID}:block/{name}"}})
+    write(f"data/{ID}/loot_table/blocks/{name}.json", {
+        "type": "minecraft:block",
+        "pools": [{"entries": [{"type": "minecraft:item", "name": f"{ID}:{name}"}], "rolls": 1}],
+        "random_sequence": f"{ID}:blocks/{name}",
+    })
+    lang[f"block.{ID}.{name}"] = title
+    lang[f"container.{ID}.{name}"] = title.replace(" Port", "")
 
 # ---- chest upgrades ---------------------------------------------------------------------------
 # Sneak and right-click a chest with one to make it the next tier where it stands, keeping what
@@ -405,6 +475,10 @@ for name, (_, _, _, _, _, pattern, key) in TIERS.items():
     recipe(name, pattern, key, key["C"])
 recipe(BARREL, ["PIP", "IBI", "PIP"],
        {"P": "#minecraft:planks", "I": "minecraft:iron_ingot", "B": "minecraft:barrel"}, "minecraft:barrel")
+recipe("large_chest", ["PHP", "PCP", "PPP"],
+       {"P": "#minecraft:planks", "H": "minecraft:hopper", "C": "minecraft:chest"}, "minecraft:hopper")
+recipe("large_barrel", ["PHP", "PBP", "PPP"],
+       {"P": "#minecraft:planks", "H": "minecraft:hopper", "B": f"{ID}:{BARREL}"}, f"{ID}:{BARREL}")
 recipe(DRAWER, ["PBP"], {"P": "minecraft:piston", "B": f"{ID}:{BARREL}"}, f"{ID}:{BARREL}")
 recipe("storage_upgrade", ["IGI", "GCG", "IGI"],
        {"I": "minecraft:iron_ingot", "G": "minecraft:gold_ingot", "C": "minecraft:chest"}, f"{ID}:{BARREL}")
@@ -416,6 +490,6 @@ write(f"assets/{ID}/lang/en_us.json", lang)
 write(f"data/{ID}/horizon/creative_tab/chests.json", {
     "title": "Expanded Chests",
     "icon": f"{ID}:diamond_chest",
-    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:{DRAWER}", f"{ID}:storage_upgrade"]
+    "items": [f"{ID}:{n}" for n in TIERS if n not in LEGACY] + [f"{ID}:{BARREL}", f"{ID}:{DRAWER}", f"{ID}:storage_upgrade", f"{ID}:large_chest", f"{ID}:large_barrel"]
              + [f"{ID}:{n}" for n in CHEST_UPGRADES],
 })

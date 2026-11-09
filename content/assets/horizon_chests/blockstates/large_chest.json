@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=north,lit=true": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=east,lit=false": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=east,lit=true": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=south,lit=false": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=south,lit=true": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=west,lit=false": {
+      "model": "horizon_chests:block/large_chest"
+    },
+    "facing=west,lit=true": {
+      "model": "horizon_chests:block/large_chest"
+    }
+  }
+}

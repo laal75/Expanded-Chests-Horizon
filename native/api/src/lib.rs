@@ -1,5 +1,6 @@
-//! Expanded Chests: four tiers of chest bigger than vanilla's, and a storage barrel that holds
-//! up to 32768 stacks of one item (barrel.rs). The blocks, menus and recipes come from the content
+//! Expanded Chests: four tiers of chest bigger than vanilla's, a storage barrel that holds
+//! up to 32768 stacks of one item (barrel.rs), and the Large Chest and Large Barrel, hollow boxes
+//! built in the world (large.rs). The blocks, menus and recipes come from the content
 //! mod; this crate gives them block entities, slots and screens. Hoppers, shift-clicks and
 //! breaking (which spills the items) work as they do for any container.
 use horizon_client::mod_api::{
@@ -12,6 +13,7 @@ use horizon_client::mod_api::{
 mod barrel;
 mod drawer;
 mod keep;
+mod large;
 mod overflow;
 mod sort;
 
@@ -24,7 +26,7 @@ pub fn hooks() -> Box<dyn Hooks> {
 /// is empty or no barrel is there. Horizon Machines' tubes send each item to the barrel that
 /// holds it.
 pub fn barrel_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
-    barrel::stored_item(dimension, pos)
+    barrel::stored_item(dimension, pos).or_else(|| large::barrel_item(dimension, pos))
 }
 
 /// A chest tier: its slots, as a grid of columns by rows.
@@ -90,14 +92,21 @@ impl Hooks for HorizonChests {
         _host: &mut dyn Host,
         event: &mut BlockEntityEvent<'_>,
     ) -> Option<(String, Compound)> {
-        (tier(event.block).is_some() || event.block == barrel::BARREL || event.block == drawer::DRAWER)
-            .then(|| (event.block.to_owned(), Compound::new()))
+        (tier(event.block).is_some()
+            || event.block == barrel::BARREL
+            || event.block == drawer::DRAWER
+            || large::is_port(event.block))
+        .then(|| (event.block.to_owned(), Compound::new()))
     }
 
     fn block_entity_ticks(&self, _host: &dyn Host, event: &mut BlockEntityTicksEvent<'_>) {
         // The barrel moves its count in and out of its slots; a full chest hands on to the next
         // (overflow.rs).
-        if event.block == barrel::BARREL || event.block == drawer::DRAWER || tier(event.block).is_some() {
+        if event.block == barrel::BARREL
+            || event.block == drawer::DRAWER
+            || tier(event.block).is_some()
+            || large::is_port(event.block)
+        {
             event.ticks = true;
         }
     }
@@ -108,6 +117,8 @@ impl Hooks for HorizonChests {
             overflow::barrel_tick(host, event);
         } else if event.entity.id == drawer::DRAWER {
             drawer::tick(host, event);
+        } else if large::is_port(&event.entity.id) {
+            large::tick(host, event);
         } else if let Some(t) = tier(&event.entity.id) {
             overflow::tick(host, event, t.slots(), |b| tier(b).is_some());
         }
@@ -124,6 +135,9 @@ impl Hooks for HorizonChests {
         if event.block == drawer::DRAWER {
             return Some(drawer::container());
         }
+        if large::is_port(event.block) {
+            return Some(large::container(event.block));
+        }
         // Every side reaches every slot, both ways, as a chest's.
         let t = tier(event.block)?;
         let all: Vec<usize> = (0..t.slots()).collect();
@@ -138,11 +152,27 @@ impl Hooks for HorizonChests {
 
     fn block_entity_update_tag(&self, event: &mut BlockEntityUpdateTagEvent<'_>) -> Option<Compound> {
         // Clients only draw the block, so they need nothing of the entity.
-        (tier(&event.entity.id).is_some() || event.entity.id == barrel::BARREL || event.entity.id == drawer::DRAWER)
-            .then(Compound::new)
+        (tier(&event.entity.id).is_some()
+            || event.entity.id == barrel::BARREL
+            || event.entity.id == drawer::DRAWER
+            || large::is_port(&event.entity.id))
+        .then(Compound::new)
     }
 
     fn screen(&self, _host: &dyn Host, event: &mut ScreenEvent<'_>) -> Option<NativeScreen> {
+        if large::is_port(event.block) {
+            let inventory_y =
+                if event.block == large::BARREL_PORT { large::BARREL_INVENTORY_Y } else { large::CHEST_INVENTORY_Y };
+            return Some(NativeScreen {
+                width: 176.0,
+                height: inventory_y + 82.0,
+                slots: large::screen_slots(event.block),
+                inventory_y,
+                inventory_x: 8.0,
+                own_labels: true,
+                ..NativeScreen::default()
+            });
+        }
         if event.block == drawer::DRAWER {
             return Some(NativeScreen {
                 width: 176.0,
@@ -192,6 +222,10 @@ impl Hooks for HorizonChests {
             drawer::draw(host, event);
             return;
         }
+        if large::is_port(event.block) {
+            large::draw(host, event);
+            return;
+        }
         let Some(t) = tier(event.block) else {
             return;
         };
@@ -209,6 +243,9 @@ impl Hooks for HorizonChests {
     }
 
     fn screen_click(&self, _host: &dyn Host, event: &mut ScreenClickEvent<'_>) -> Option<i32> {
+        if large::is_port(event.block) {
+            return large::click(event);
+        }
         let t = tier(event.block)?;
         (!event.right && sort::over(t.sort_at(), event.at)).then_some(sort::SORT_BUTTON)
     }
@@ -220,6 +257,10 @@ impl Hooks for HorizonChests {
     }
 
     fn menu_button(&self, host: &mut dyn Host, event: &mut MenuButtonEvent<'_>) {
+        if large::is_port(&event.entity.id) {
+            large::button(event);
+            return;
+        }
         if event.id != sort::SORT_BUTTON {
             return;
         }
@@ -235,6 +276,8 @@ impl Hooks for HorizonChests {
             barrel::slot_rule(event);
         } else if event.menu == drawer::DRAWER {
             drawer::slot_rule(event);
+        } else if large::is_port(event.menu) {
+            large::slot_rule(event);
         }
     }
 
@@ -256,6 +299,8 @@ impl Hooks for HorizonChests {
         } else if block == drawer::DRAWER {
             // Its count rides on the drop already; only the input has real items to keep.
             keep::destroy_block(host, event.pos, 1);
+        } else if large::is_port(&block) {
+            large::destroy_block(host, event.pos, &block);
         }
         Flow::Continue
     }

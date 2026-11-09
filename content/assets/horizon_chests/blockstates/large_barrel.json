@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=north,lit=true": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=east,lit=false": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=east,lit=true": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=south,lit=false": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=south,lit=true": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=west,lit=false": {
+      "model": "horizon_chests:block/large_barrel"
+    },
+    "facing=west,lit=true": {
+      "model": "horizon_chests:block/large_barrel"
+    }
+  }
+}

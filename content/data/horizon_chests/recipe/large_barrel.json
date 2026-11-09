@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PHP",
+    "PBP",
+    "PPP"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "H": "minecraft:hopper",
+    "B": "horizon_chests:storage_barrel"
+  },
+  "result": {
+    "id": "horizon_chests:large_barrel"
+  }
+}

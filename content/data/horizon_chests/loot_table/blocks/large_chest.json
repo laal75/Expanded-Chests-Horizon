@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "horizon_chests:large_chest"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "horizon_chests:blocks/large_chest"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PHP",
+    "PCP",
+    "PPP"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "H": "minecraft:hopper",
+    "C": "minecraft:chest"
+  },
+  "result": {
+    "id": "horizon_chests:large_chest"
+  }
+}
