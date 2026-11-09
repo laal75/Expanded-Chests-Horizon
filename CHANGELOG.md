@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.7.3 - 2026-11-09
+
+- Built for Horizon Nightly 2026-11-08 (fdc87ae): the code now pins that commit
+
 ## 0.7.2 - 2026-11-09
 
 ## 0.7.2 - 2026-11-09

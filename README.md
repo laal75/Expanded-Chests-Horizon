@@ -67,8 +67,8 @@ The ready-made packs are in the [`dist`](dist) folder, so there is nothing to cl
 
 | File | What it is | Where it goes in the game folder |
 |---|---|---|
-| [`horizon_chests-0.5.0.hmod`](dist/horizon_chests-0.5.0.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
-| [`horizon_chests_core-0.5.0.hnmod`](dist/horizon_chests_core-0.5.0.hnmod) | The code | `horizon-native-mods/` |
+| [`horizon_chests-0.7.3.hmod`](dist/horizon_chests-0.7.3.hmod) | The content: blocks, items, recipes, textures | `horizon-mods/` |
+| [`horizon_chests_core-0.7.3.hnmod`](dist/horizon_chests_core-0.7.3.hnmod) | The code | `horizon-native-mods/` |
 
 1. Download both files. The game folder of the main Horizon instance is `%APPDATA%\horizon` on
    Windows; `horizon-launcher instance list` shows your instances.
@@ -129,7 +129,7 @@ links to them) side by side in one folder and run `native-build` on that folder.
 
 ### Horizon version
 
-The code builds on Horizon commit `67dad0d` (the 2026-11-04 Nightly, hooks API 359), set in
+The code builds on Horizon commit `fdc87ae` (the 2026-11-08 Nightly), set in
 `native/horizon-mixin.toml` and `native/api/Cargo.toml`, the
 same as Machine Tech, so the two build into one game. The launcher fetches that version when it
 builds.
