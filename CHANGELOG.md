@@ -5,6 +5,12 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.7.1 - 2026-11-09
+
+## 0.7.1 - 2026-11-09
+
+- Fixed: 0.7.0's content didn't load, so no Expanded Chests blocks showed. A Large Chest Port's screen had more slots than a screen may have; it now offers up to 247 kinds at a time, starting from the page its screen is on.
+
 ## 0.7.0 - 2026-11-09
 
 ## 0.7.0 - 2026-11-09

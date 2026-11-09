@@ -11,7 +11,7 @@
 //! A port is the box's hands: its 9 input slots take items in (hoppers, tubes, the storage
 //! network), and its view slots hold a stack of each item kind, drawn out of the store and topped
 //! up every tick, which hoppers, tubes and players take from. A Large Chest port has a view slot for
-//! every kind (540), 27 to a page on its screen; a Large Barrel port has 9. The storage network
+//! up to 247 kinds (a menu holds 256 slots at most), 27 to a page on its screen; a Large Barrel port has 9. The storage network
 //! (Machine Tech) counts the rest from the port's block entity: `large_items`, by `box_x/y/z`.
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ pub(crate) fn is_port(block: &str) -> bool {
 
 /// Slots 0 to 8 take in; the rest are the view slots.
 const INPUTS: usize = 9;
-const CHEST_VIEWS: usize = 540;
+const CHEST_VIEWS: usize = 247;
 const BARREL_VIEWS: usize = 9;
 /// A page of a Large Chest port's screen.
 const PAGE: usize = 27;

@@ -340,8 +340,8 @@ lang[f"item.{ID}.storage_upgrade"] = "Storage Upgrade"
 # ---- the Large Chest and Large Barrel ports -------------------------------------------------
 # A hollow box built in the world (native/api/src/large.rs): planks or logs, the same metal block
 # on all eight corners, and up to one port on each side. Slots 0-8 take in; the rest are view slots
-# (a stack of each kind the box holds): 540 on a chest port, 9 on a barrel port.
-LARGE = {"large_chest": ("Large Chest Port", 9 + 540), "large_barrel": ("Large Barrel Port", 9 + 9)}
+# (a stack of each kind the box holds): 247 on a chest port (a menu holds 256 slots at most), 9 on a barrel port.
+LARGE = {"large_chest": ("Large Chest Port", 9 + 247), "large_barrel": ("Large Barrel Port", 9 + 9)}
 
 
 def large_chest_port(seed):
