@@ -174,10 +174,15 @@ pub(crate) fn slot_rule(event: &mut MenuSlotRulesEvent<'_>) {
     }
 }
 
-/// A sneaking right click with an item (an ordinary one opens the screen) puts the held stack
-/// in, as much as the input takes at once.
+/// A sneaking right click with an item on its front (an ordinary one opens the screen) puts the
+/// held stack in, as much as the input takes at once. On any other side it places the block as
+/// against any other, so blocks can be built up beside and on top of it.
 pub(crate) fn use_item_on(host: &mut dyn Host, event: &mut UseItemOnEvent<'_>) -> Flow {
-    if host.block(event.pos) != BARREL || !plain(event.stack) || &*event.stack.item == UPGRADE {
+    if host.block(event.pos) != BARREL
+        || !plain(event.stack)
+        || &*event.stack.item == UPGRADE
+        || !crate::is_front(&*host, event.pos, event.face)
+    {
         return Flow::Continue;
     }
     let Some(player) = host.acting_player() else {

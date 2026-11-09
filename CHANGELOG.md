@@ -5,6 +5,10 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.7.4 - 2026-11-09
+
+- A Storage Barrel or Compacting Drawer takes a sneaking right click's stack only on its front; on any other side the block is placed against it, as against any other block
+
 ## 0.7.3 - 2026-11-09
 
 - Built for Horizon Nightly 2026-11-08 (fdc87ae): the code now pins that commit

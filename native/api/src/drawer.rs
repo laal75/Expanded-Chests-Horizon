@@ -204,9 +204,14 @@ pub(crate) fn slot_rule(event: &mut MenuSlotRulesEvent<'_>) {
     }
 }
 
-/// A sneaking right click with an item it can compact puts the held stack in.
+/// A sneaking right click on its front with an item it can compact puts the held stack in; on any
+/// other side it places the block as against any other.
 pub(crate) fn use_item_on(host: &mut dyn Host, event: &mut UseItemOnEvent<'_>) -> Flow {
-    if host.block(event.pos) != DRAWER || !plain(event.stack) || material_of(&event.stack.item).is_none() {
+    if host.block(event.pos) != DRAWER
+        || !plain(event.stack)
+        || material_of(&event.stack.item).is_none()
+        || !crate::is_front(&*host, event.pos, event.face)
+    {
         return Flow::Continue;
     }
     let Some(player) = host.acting_player() else {

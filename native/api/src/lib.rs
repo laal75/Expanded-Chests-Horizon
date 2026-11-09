@@ -29,6 +29,21 @@ pub fn barrel_item(dimension: &str, pos: [i32; 3]) -> Option<String> {
     barrel::stored_item(dimension, pos).or_else(|| large::barrel_item(dimension, pos))
 }
 
+/// Whether `face` (the clicked side, as its outward normal) is the front of the block at `pos`, the
+/// side its `facing` names. A block without one has no other side, so any is its front.
+pub(crate) fn is_front(host: &dyn Host, pos: [i32; 3], face: [i32; 3]) -> bool {
+    let front = match host.block_property(pos, "facing").as_deref() {
+        Some("north") => [0, 0, -1],
+        Some("south") => [0, 0, 1],
+        Some("west") => [-1, 0, 0],
+        Some("east") => [1, 0, 0],
+        Some("up") => [0, 1, 0],
+        Some("down") => [0, -1, 0],
+        _ => return true,
+    };
+    face == front
+}
+
 /// A chest tier: its slots, as a grid of columns by rows.
 struct Tier {
     block: &'static str,
