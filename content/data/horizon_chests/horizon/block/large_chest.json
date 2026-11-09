@@ -4,6 +4,6 @@
     "hardness": 2.5,
     "explosion_resistance": 6.0,
     "requires_tool": false,
-    "sounds": "minecraft:wood"
+    "sounds": "minecraft:oak_planks"
   }
 }

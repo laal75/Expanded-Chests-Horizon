@@ -389,7 +389,7 @@ for name, (title, slots) in LARGE.items():
     write(f"data/{ID}/horizon/block/{name}.json", {
         "template": "minecraft:furnace",
         "properties": {"hardness": 2.5, "explosion_resistance": 6.0, "requires_tool": False,
-                       "sounds": "minecraft:wood"},
+                       "sounds": "minecraft:oak_planks"},
     })
     write(f"data/{ID}/horizon/menu/{name}.json",
           {"slots": slots, "data_slots": 16, "results": list(range(9, slots))})

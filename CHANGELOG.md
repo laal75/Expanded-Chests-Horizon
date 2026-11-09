@@ -5,6 +5,12 @@ and each release is tagged `v<version>`. New entries go under **Unreleased**.
 
 ## Unreleased
 
+## 0.7.2 - 2026-11-09
+
+## 0.7.2 - 2026-11-09
+
+- Fixed: 0.7.1's content still didn't load, and on newer Horizon nightlies it stopped every other content mod from loading too. The Large Chest and Large Barrel Ports named a block sound that isn't a block; they now sound like oak planks.
+
 ## 0.7.1 - 2026-11-09
 
 ## 0.7.1 - 2026-11-09

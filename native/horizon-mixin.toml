@@ -3,7 +3,7 @@
 # `horizon-launcher native-build <this folder> --trust-native-code`.
 [mod]
 id = "horizon_chests_core"
-version = "0.7.1"
+version = "0.7.2"
 
 # The same Horizon as Machine Tech, so the two build into one game.
 [compatibility]
